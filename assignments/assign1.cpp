@@ -56,7 +56,7 @@ class Product{
         }
 
     public:
-        Product (int id) : id(id), timestamp(clock()), life(random() % 1024) {
+        Product (int id) : id(id), timestamp(clock()), life(rand() % 1024) {
             if(DEBUG) std::cout << "+Product ID (produced): " << this->id << std::endl;
         }
         int get_id(){
@@ -217,7 +217,7 @@ int main(int argc, char* argv[]){
 
     // Set Seed/Initialize Mutexes/Declare threads & ids/Set UNLIM & RDRB
 
-    srandom(seed);
+    srand(seed);
     pthread_mutex_init(&queue_mutex, NULL);
     pthread_t prod_thread[nump], consmr_thread[numc];
     int prodID[nump], consmrID[numc];
