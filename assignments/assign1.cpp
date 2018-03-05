@@ -23,7 +23,6 @@ int NPROD = 0, NCONS = 0;
 bool PDONE = false, CDONE = false, UNLIM = false, RDRB = false;
 
 // Global Metrics
-// • TIMET: Total time
 // • MINTA: Minimum Turnaround Time
 // • MAXTA: Maximum Turnaround Time
 // • AVGTA: Average Turnaround Time
@@ -32,8 +31,8 @@ bool PDONE = false, CDONE = false, UNLIM = false, RDRB = false;
 // • AVGW: Average Wait
 // • PRODT: Producer Throughput
 // • CNSMRT: Consumer Throughput
-float TIMET=0;
-clock_t PRODT, CNSMRT;
+clock_t MINTA=0, MAXTA=0, MINW=0, MAXW=0, PRODT, CNSMRT;
+float AVGTA, AVGW;
 
 // Global pthread variables
 // • queue_mutex: Mutex for the QUEUE variable
@@ -42,13 +41,23 @@ clock_t PRODT, CNSMRT;
 pthread_mutex_t queue_mutex;
 pthread_cond_t condp = PTHREAD_COND_INITIALIZER, condc = PTHREAD_COND_INITIALIZER;
 
+int compare_time(clock_t first, clock_t second){
+    if(first > second) return 1;
+    else if(second > first) return -1;
+    else return 0;
+}
+
 // Product class that holds a product ID, timestamp, and life
 // Consume methods executes fb N times depending on algo
 class Product{
     private:
         int id;
-        clock_t timestamp;
         int life;
+        clock_t timestamp;
+        clock_t end;
+        clock_t begin;
+        clock_t turnaround;
+        float wait;
         int fb(int n){
            if (n <= 1)
               return n;
@@ -56,11 +65,26 @@ class Product{
         }
 
     public:
-        Product (int id) : id(id), timestamp(clock()), life(rand() % 1024) {
+        Product (int id) : id(id), life(rand() % 1024), timestamp(clock()) {
             if(DEBUG) std::cout << "+Product ID (produced): " << this->id << std::endl;
         }
         int get_id(){
             return this->id;
+        }
+        void turnaround_update(){
+            this->turnaround = clock() - this->turnaround;
+            if(MINTA == 0 || MINTA > this->turnaround) MINTA = this->turnaround;
+            if(MAXTA == 0 || MAXTA < this->turnaround) MAXTA = this->turnaround;
+            AVGTA += ((float)this->turnaround);
+        }
+        void wait_update(){
+            this->wait = this->wait;
+        }
+        void wait_finish(){
+            this->turnaround = clock() - this->turnaround;
+            if(MINTA == 0 || MINTA > this->turnaround) MINTA = this->turnaround;
+            if(MAXTA == 0 || MAXTA < this->turnaround) MAXTA = this->turnaround;
+            AVGTA += ((float)this->turnaround);
         }
         // Runs fibo sequence [N=life] times
         void consume(){
@@ -105,7 +129,7 @@ void *producer(void *id){
         if(DEBUG) std::cout << "$PRODUCER LOCK RECEVIED ID: " << int_id << std::endl;
 
         // If enough products have been made, quit.
-        if(NPROD == PMAX - 1){
+        if(NPROD == PMAX){
             PRODT = clock() - PRODT;
             PDONE = true;
             pthread_cond_broadcast(&condp); // Lets all waiting producers continue
@@ -138,7 +162,7 @@ void *consumer(void *id){
         pthread_mutex_lock(&queue_mutex);
 
         // Checks if there are any products or continue if all possible products have been consumed 
-        while(QUEUE.size() < 1 && NCONS < PMAX - 1) {
+        while(QUEUE.size() < 1 && NCONS < PMAX) {
             if(DEBUG) std::cout << "...Consumer Thread Waiting ID: " << int_id << std::endl;
             pthread_cond_wait(&condc, &queue_mutex);
             if(DEBUG) std::cout << "...Consumer Thread Finished Waiting ID: " << int_id << std::endl;
@@ -146,7 +170,7 @@ void *consumer(void *id){
         if(DEBUG) std::cout << "$CONSUMER LOCK RECEVIED ID: " << int_id << std::endl; 
 
         // If all possible products have been consumed, exit.
-        if(NCONS == PMAX - 1){
+        if(NCONS == PMAX){
             CNSMRT = clock() - CNSMRT;
             CDONE = true;
             pthread_cond_broadcast(&condc); // Lets all waiting consumers continue
@@ -162,6 +186,7 @@ void *consumer(void *id){
             if(!prod.consume(QNTM)) QUEUE.push(prod);
             else {
                 ++NCONS;
+                prod.turnaround_update();
                 std::cout << "Consumer " << int_id << " has consumed product " << prod.get_id() << std::endl;
             }
         }
@@ -170,6 +195,7 @@ void *consumer(void *id){
 	        ++NCONS;
             prod.consume();
             QUEUE.pop();
+            prod.turnaround_update();
             std::cout << "Consumer " << int_id << " has consumed product " << prod.get_id() << std::endl;
         }
 
@@ -185,7 +211,6 @@ void *consumer(void *id){
 }
 
 int main(int argc, char* argv[]){
-
     clock_t total_time = clock();
     if(argc != 8) {
         std::cout << "Usage: ./assign1 P1 P2 P3 P4 P5 P6 P7\n"
@@ -199,6 +224,8 @@ int main(int argc, char* argv[]){
                   << std::endl;
         return -1;
     }
+
+    // Input Values
 
     int nump = atoi(argv[1]);   // Number of Producers
     if(nump < 1) std::cout << "P1 should be at least 1" << std::endl;
@@ -256,12 +283,14 @@ int main(int argc, char* argv[]){
 
     // Print Metrics
     if(METRIC){
-        std::cout << "_______________________________\n" << "[METRICS]" << std::endl;
+        std::cout << "_______________________________\n" << "[METRICS IN CPU TIME]" << std::endl;
         total_time = clock() - total_time;
-        TIMET = ((float)total_time)/CLOCKS_PER_SEC;
-        std::cout << "Total Time: " << TIMET << " seconds" << std::endl;
-        std::cout << "Producer Throughput: " << (float)PRODT/CLOCKS_PER_SEC << std::endl;
-        std::cout << "Consumer Throughput: " << (float)CNSMRT/CLOCKS_PER_SEC << std::endl;
+        std::cout << "Total Time: " << ((float)total_time*1000)/CLOCKS_PER_SEC << " miliseconds" << std::endl;
+        std::cout << "Minimum Turnaround: " << ((float)MINTA*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
+        std::cout << "Maximum Turnaround: " << ((float)MAXTA*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
+        std::cout << "Average Turnaround: " << ((float)AVGTA*1000)/(PMAX*CLOCKS_PER_SEC) << " miliseconds" << std::endl;
+        std::cout << "Producer Throughput: " << (PMAX*60)/(((float)PRODT)/CLOCKS_PER_SEC) << " products produced per minute" << std::endl;
+        std::cout << "Consumer Throughput: " << (PMAX*60)/(((float)CNSMRT)/CLOCKS_PER_SEC) << " products consumed per minute" << std::endl;
         std::cout << "_______________________________\n" << std::endl;
     }
 
