@@ -66,19 +66,18 @@ class Product{
         }
 
     public:
-        Product (int id) : id(id), life(rand() % 1024), timestamp(clock()), end(clock()) {
+        Product (int id) : id(id), life(rand() % 1024), timestamp(clock()), end(timestamp), wait(0) {
             if(DEBUG) std::cout << "+Product ID (produced): " << this->id << std::endl;
+            if(DEBUG) std::cout << "Initial End: " << end << std::endl;
         }
         int get_id(){
             return this->id;
         }
         void set_begin(clock_t begin){
             this->begin = begin;
-            if(DEBUG) std::cout << "Begin: " << begin << std::endl;
         }
         void set_end(clock_t end){
             this->end = end;
-            if(DEBUG) std::cout << "End: " << end << std::endl;
             TIMET += (float)(this->end - this->begin);    // Adding to the total time of process
         }
         void turnaround_update(){
@@ -88,6 +87,8 @@ class Product{
             AVGTA += ((float)this->turnaround);
         }
         void wait_update(){
+            if(DEBUG) std::cout << "Begin: " << this->begin << std::endl;
+            if(DEBUG) std::cout << "End: " << this->end << std::endl;
             this->wait += (float)(this->begin - this->end);
             if(DEBUG) std::cout << "Update Wait: " << this->wait << std::endl;
         }
@@ -149,7 +150,9 @@ void *producer(void *id){
             pthread_mutex_unlock(&queue_mutex);
             if(DEBUG) std::cout << "$PRODUCER UNLOCKED ID: " << int_id << std::endl;
             break;
-	    }
+        // If no products have been consumed, start a clock for throughput
+	    }else if(NPROD == 0)
+            PRODT = clock();
 
         QUEUE.push(Product(NPROD));
         if(DEBUG) std::cout << "^Queue Size (produced): " << QUEUE.size() << std::endl;
@@ -190,7 +193,9 @@ void *consumer(void *id){
             pthread_mutex_unlock(&queue_mutex);
             if(DEBUG) std::cout << "$CONSUMER UNLOCKED ID: " << int_id << std::endl;
             break;
-	    }
+        // If no products have been consumed, start a clock for throughput
+	    }else if(NCONS == 0)
+            CNSMRT = clock();
         
         // If Round Robin and the item hasn't reached the end of its life, push it back
         if(RDRB){
@@ -270,7 +275,6 @@ int main(int argc, char* argv[]){
     
     // Create prod threads
 
-    PRODT = clock();
     for (int i=0;i<nump;i++){
         prodID[i] = i;
         pthread_create(&prod_thread[i], NULL, producer, &prodID[i]);
@@ -278,7 +282,6 @@ int main(int argc, char* argv[]){
 
     // Create consumer threads
 
-    CNSMRT = clock();
     for (int i=0;i<numc;i++){
         consmrID[i] = i;
         pthread_create(&consmr_thread[i], NULL, consumer, &consmrID[i]);
@@ -308,8 +311,8 @@ int main(int argc, char* argv[]){
         std::cout << "Minimum Wait: " << (MINW*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
         std::cout << "Maximum Wait: " << (MAXW*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
         std::cout << "Average Wait: " << (AVGW*1000)/(PMAX*CLOCKS_PER_SEC) << " miliseconds" << std::endl;
-        std::cout << "Producer Throughput: " << (PMAX*60)/(((float)PRODT)/CLOCKS_PER_SEC) << " products produced per minute" << std::endl;
-        std::cout << "Consumer Throughput: " << (PMAX*60)/(((float)CNSMRT)/CLOCKS_PER_SEC) << " products consumed per minute" << std::endl;
+        std::cout << "Producer Throughput: " << PMAX*60/(((float)PRODT)/CLOCKS_PER_SEC) << " products produced per minute" << std::endl;
+        std::cout << "Consumer Throughput: " << PMAX*60/(((float)CNSMRT)/CLOCKS_PER_SEC) << " products consumed per minute" << std::endl;
         std::cout << "_______________________________\n" << std::endl;
     }
 
