@@ -79,7 +79,7 @@ class Product{
         void set_end(clock_t end){
             this->end = end;
             if(DEBUG) std::cout << "End: " << end << std::endl;
-            TIMET += (float)(this->end-this->begin);
+            TIMET += (float)(this->end - this->begin);    // Adding to the total time of process
         }
         void turnaround_update(){
             this->turnaround = clock() - this->timestamp;
