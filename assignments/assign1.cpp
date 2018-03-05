@@ -32,7 +32,7 @@ bool PDONE = false, CDONE = false, UNLIM = false, RDRB = false;
 // • AVGW: Average Wait
 // • PRODT: Producer Throughput
 // • CNSMRT: Consumer Throughput
-clock_t MINTA=0, MAXTA=0,  PRODT, CNSMRT;
+clock_t MINTA=0, MAXTA=0,  PRODT=0, CNSMRT=0;
 float AVGTA=0, AVGW=0, MINW=0, MAXW=0, TIMET=0;
 
 // Global pthread variables
@@ -311,8 +311,8 @@ int main(int argc, char* argv[]){
         std::cout << "Minimum Wait: " << (MINW*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
         std::cout << "Maximum Wait: " << (MAXW*1000)/(CLOCKS_PER_SEC) << " miliseconds" << std::endl;
         std::cout << "Average Wait: " << (AVGW*1000)/(PMAX*CLOCKS_PER_SEC) << " miliseconds" << std::endl;
-        std::cout << "Producer Throughput: " << PMAX*60/(((float)PRODT)/CLOCKS_PER_SEC) << " products produced per minute" << std::endl;
-        std::cout << "Consumer Throughput: " << PMAX*60/(((float)CNSMRT)/CLOCKS_PER_SEC) << " products consumed per minute" << std::endl;
+        std::cout << "Producer Throughput: " << (((float)PRODT)*1000/CLOCKS_PER_SEC)/PMAX << " milliseconds per product produced" << std::endl;
+        std::cout << "Consumer Throughput: " << (((float)CNSMRT)*1000/CLOCKS_PER_SEC)/PMAX << " milliseconds per product consumed" << std::endl;
         std::cout << "_______________________________\n" << std::endl;
     }
 
