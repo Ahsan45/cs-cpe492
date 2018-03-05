@@ -67,8 +67,8 @@ class Product{
 
     public:
         Product (int id) : id(id), life(rand() % 1024), timestamp(clock()), end(timestamp), wait(0) {
-            if(DEBUG) std::cout << "+Product ID (produced): " << this->id << std::endl;
-            if(DEBUG) std::cout << "Initial End: " << end << std::endl;
+            //if(DEBUG) std::cout << "+Product ID (produced): " << this->id << std::endl;
+            //if(DEBUG) std::cout << "Initial End: " << end << std::endl;
         }
         int get_id(){
             return this->id;
@@ -87,13 +87,13 @@ class Product{
             AVGTA += ((float)this->turnaround);
         }
         void wait_update(){
-            if(DEBUG) std::cout << "Begin: " << this->begin << std::endl;
-            if(DEBUG) std::cout << "End: " << this->end << std::endl;
+            //if(DEBUG) std::cout << "Begin: " << this->begin << std::endl;
+            // if(DEBUG) std::cout << "End: " << this->end << std::endl;
             this->wait += (float)(this->begin - this->end);
-            if(DEBUG) std::cout << "Update Wait: " << this->wait << std::endl;
+            // if(DEBUG) std::cout << "Update Wait: " << this->wait << std::endl;
         }
         void wait_finish(){
-            if(DEBUG) std::cout << "Final Wait: " << this->wait << std::endl;
+            // if(DEBUG) std::cout << "Final Wait: " << this->wait << std::endl;
             if(MINW == 0 || MINW > this->wait) MINW = this->wait;
             if(MAXW == 0 || MAXW < this->wait) MAXW = this->wait;
             AVGW += this->wait;
@@ -102,21 +102,21 @@ class Product{
         void consume(){
             this->wait_update();
             for(int i = 0; i < this->life; i++) fb(10);
-            if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
+            // if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
         }
         // Round robin consume. If ready to be removed from queue, function returns true
         bool consume(int quantum){
             if(this->life > quantum){
                 this->wait_update();
                 this->life -= quantum;
-                if(DEBUG) std::cout << "<3Life reduced: " << this->life << std::endl;
+                // if(DEBUG) std::cout << "<3Life reduced: " << this->life << std::endl;
                 for(int i = 0; i < quantum; i++) fb(10);
-                if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
+                // if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
                 return false;
             }else{
                 consume();
-                if(DEBUG) std::cout << "<3Life Drained" << std::endl;
-                if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
+                // if(DEBUG) std::cout << "<3Life Drained" << std::endl;
+                // if(DEBUG) std::cout << "-ProductID (consumed): " << this->id << std::endl;
                 return true;
             }
         }
@@ -127,20 +127,20 @@ std::queue<Product> QUEUE;
 
 void *producer(void *id){
     int int_id = *(int*)id; // The unique producer thread id
-    if(DEBUG) std::cout << "!Producer Thread ID: " << int_id << std::endl;
+    // if(DEBUG) std::cout << "!Producer Thread ID: " << int_id << std::endl;
 
     // PDONE is true when PMAX has been reached
     while(!PDONE){
-        if(DEBUG) std::cout << "$PRODUCER LOCK REQUESTED ID: " << int_id << std::endl;
+        // if(DEBUG) std::cout << "$PRODUCER LOCK REQUESTED ID: " << int_id << std::endl;
         pthread_mutex_lock(&queue_mutex); 
 
         // Checks if Queue limit is reached or skips if the queue size has no limit
         while(QUEUE.size() >= QMAX && !UNLIM) {
-            if(DEBUG) std::cout << "...Producer Thread Waiting ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "...Producer Thread Waiting ID: " << int_id << std::endl;
             pthread_cond_wait(&condp, &queue_mutex);    // Waits for consumer to consume
-            if(DEBUG) std::cout << "...Producer Thread Finished Waiting ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "...Producer Thread Finished Waiting ID: " << int_id << std::endl;
         }
-        if(DEBUG) std::cout << "$PRODUCER LOCK RECEVIED ID: " << int_id << std::endl;
+        // if(DEBUG) std::cout << "$PRODUCER LOCK RECEVIED ID: " << int_id << std::endl;
 
         // If enough products have been made, quit.
         if(NPROD == PMAX){
@@ -148,23 +148,23 @@ void *producer(void *id){
             PDONE = true;
             pthread_cond_broadcast(&condp); // Lets all waiting producers continue
             pthread_mutex_unlock(&queue_mutex);
-            if(DEBUG) std::cout << "$PRODUCER UNLOCKED ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "$PRODUCER UNLOCKED ID: " << int_id << std::endl;
             break;
         // If no products have been consumed, start a clock for throughput
 	    }else if(NPROD == 0)
             PRODT = clock();
 
         QUEUE.push(Product(NPROD));
-        if(DEBUG) std::cout << "^Queue Size (produced): " << QUEUE.size() << std::endl;
+        // if(DEBUG) std::cout << "^Queue Size (produced): " << QUEUE.size() << std::endl;
         std::cout << "Producer " << int_id << " has produced product " << NPROD << std::endl;
 	    ++NPROD;
-        if(DEBUG) std::cout << "*Number of Products Produced: " << NPROD << std::endl;
+        // if(DEBUG) std::cout << "*Number of Products Produced: " << NPROD << std::endl;
         pthread_cond_signal(&condc);    // Lets a single waiting consumer continue
         pthread_mutex_unlock(&queue_mutex); 
-        if(DEBUG) std::cout << "$PRODUCER UNLOCKED ID: " << int_id << std::endl;
+        // if(DEBUG) std::cout << "$PRODUCER UNLOCKED ID: " << int_id << std::endl;
         usleep(100000); // Sleep 100 milliseconds (100000 microseconds)
     }
-    if(DEBUG) std::cout << "!Producer ID: " << int_id << " Exited" << std::endl;
+    // if(DEBUG) std::cout << "!Producer ID: " << int_id << " Exited" << std::endl;
     pthread_exit(NULL);
 }
 
