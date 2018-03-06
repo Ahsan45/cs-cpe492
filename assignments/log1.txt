@@ -1,0 +1,518 @@
+4 4 100 10 0 3 7
+_______________________________
+[METRICS]
+Total Time: 95.09 miliseconds
+Minimum Turnaround: 0.142 miliseconds
+Maximum Turnaround: 6.185 miliseconds
+Average Turnaround: 2.34308 miliseconds
+Minimum Wait: 0.089 miliseconds
+Maximum Wait: 4.294 miliseconds
+Average Wait: 1.39448 miliseconds
+Producer Throughput: 1.07138 milliseconds per product produced
+Consumer Throughput: 1.07344 milliseconds per product consumed
+_______________________________
+
+4 4 100 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 100.523 miliseconds
+Minimum Turnaround: 0.121 miliseconds
+Maximum Turnaround: 4.942 miliseconds
+Average Turnaround: 1.92899 miliseconds
+Minimum Wait: 0.031 miliseconds
+Maximum Wait: 4.275 miliseconds
+Average Wait: 0.92613 miliseconds
+Producer Throughput: 1.14043 milliseconds per product produced
+Consumer Throughput: 1.13671 milliseconds per product consumed
+_______________________________
+
+4 4 100 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 93.629 miliseconds
+Minimum Turnaround: 0.256 miliseconds
+Maximum Turnaround: 7.77 miliseconds
+Average Turnaround: 2.51415 miliseconds
+Minimum Wait: 0.048 miliseconds
+Maximum Wait: 5.891 miliseconds
+Average Wait: 1.58015 miliseconds
+Producer Throughput: 0.01359 milliseconds per product produced
+Consumer Throughput: 1.06514 milliseconds per product consumed
+_______________________________
+
+2 8 100 10 0 3 7
+_______________________________
+[METRICS]
+Total Time: 96.39 miliseconds
+Minimum Turnaround: 0.055 miliseconds
+Maximum Turnaround: 3.587 miliseconds
+Average Turnaround: 1.07106 miliseconds
+Minimum Wait: 0.014 miliseconds
+Maximum Wait: 1.866 miliseconds
+Average Wait: 0.1099 miliseconds
+Producer Throughput: 1.13457 milliseconds per product produced
+Consumer Throughput: 0.04086 milliseconds per product consumed
+_______________________________
+
+2 8 100 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 81.678 miliseconds
+Minimum Turnaround: 0.071 miliseconds
+Maximum Turnaround: 3.158 miliseconds
+Average Turnaround: 0.90159 miliseconds
+Minimum Wait: 0.013 miliseconds
+Maximum Wait: 1.963 miliseconds
+Average Wait: 0.08674 miliseconds
+Producer Throughput: 0.97775 milliseconds per product produced
+Consumer Throughput: 0.04917 milliseconds per product consumed
+_______________________________
+
+2 8 100 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 75.586 miliseconds
+Minimum Turnaround: 0.07 miliseconds
+Maximum Turnaround: 2.34 miliseconds
+Average Turnaround: 0.85284 miliseconds
+Minimum Wait: 0.016 miliseconds
+Maximum Wait: 1.604 miliseconds
+Average Wait: 0.09883 miliseconds
+Producer Throughput: 0.89205 milliseconds per product produced
+Consumer Throughput: 0.02967 milliseconds per product consumed
+_______________________________
+
+8 2 100 10 0 3 7
+_______________________________
+[METRICS]
+Total Time: 81.167 miliseconds
+Minimum Turnaround: 1.909 miliseconds
+Maximum Turnaround: 16.809 miliseconds
+Average Turnaround: 8.80773 miliseconds
+Minimum Wait: 0.676 miliseconds
+Maximum Wait: 15.722 miliseconds
+Average Wait: 7.99801 miliseconds
+Producer Throughput: 0.82566 milliseconds per product produced
+Consumer Throughput: 0.96778 milliseconds per product consumed
+_______________________________
+
+8 2 100 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 81.744 miliseconds
+Minimum Turnaround: 0.671 miliseconds
+Maximum Turnaround: 5.759 miliseconds
+Average Turnaround: 2.83765 miliseconds
+Minimum Wait: 0.351 miliseconds
+Maximum Wait: 4.048 miliseconds
+Average Wait: 2.02211 miliseconds
+Producer Throughput: 0.96771 milliseconds per product produced
+Consumer Throughput: 0.98938 milliseconds per product consumed
+_______________________________
+
+8 2 100 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 91.625 miliseconds
+Minimum Turnaround: 1.881 miliseconds
+Maximum Turnaround: 77.62 miliseconds
+Average Turnaround: 37.388 miliseconds
+Minimum Wait: 0.599 miliseconds
+Maximum Wait: 75.771 miliseconds
+Average Wait: 36.4736 miliseconds
+Producer Throughput: 0.03182 milliseconds per product produced
+Consumer Throughput: 1.00754 milliseconds per product consumed
+_______________________________
+
+4 4 4000 10 0 3 7
+_______________________________
+[METRICS]
+Total Time: 2883.56 miliseconds
+Minimum Turnaround: 0.092 miliseconds
+Maximum Turnaround: 15.62 miliseconds
+Average Turnaround: 6.62556 miliseconds
+Minimum Wait: 0.034 miliseconds
+Maximum Wait: 15.154 miliseconds
+Average Wait: 5.9065 miliseconds
+Producer Throughput: 0.815178 milliseconds per product produced
+Consumer Throughput: 0.81733 milliseconds per product consumed
+_______________________________
+
+4 4 4000 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 2858.64 miliseconds
+Minimum Turnaround: 0.127 miliseconds
+Maximum Turnaround: 6.357 miliseconds
+Average Turnaround: 2.30466 miliseconds
+Minimum Wait: 0.017 miliseconds
+Maximum Wait: 4.72 miliseconds
+Average Wait: 1.59173 miliseconds
+Producer Throughput: 0.815719 milliseconds per product produced
+Consumer Throughput: 0.816337 milliseconds per product consumed
+_______________________________
+
+4 4 4000 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3709.06 miliseconds
+Minimum Turnaround: 0.256 miliseconds
+Maximum Turnaround: 28.912 miliseconds
+Average Turnaround: 11.4516 miliseconds
+Minimum Wait: 0.108 miliseconds
+Maximum Wait: 26.989 miliseconds
+Average Wait: 10.5266 miliseconds
+Producer Throughput: 1.04346 milliseconds per product produced
+Consumer Throughput: 1.04773 milliseconds per product consumed
+_______________________________
+
+2 8 4000 10 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3686.46 miliseconds
+Minimum Turnaround: 0.02 miliseconds
+Maximum Turnaround: 3.146 miliseconds
+Average Turnaround: 0.995238 miliseconds
+Minimum Wait: 0.008 miliseconds
+Maximum Wait: 1.982 miliseconds
+Average Wait: 0.0761185 miliseconds
+Producer Throughput: 1.09619 milliseconds per product produced
+Consumer Throughput: 0.00083925 milliseconds per product consumed
+_______________________________
+
+2 8 4000 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3729.67 miliseconds
+Minimum Turnaround: 0.038 miliseconds
+Maximum Turnaround: 3.589 miliseconds
+Average Turnaround: 1.0092 miliseconds
+Minimum Wait: 0.01 miliseconds
+Maximum Wait: 2.163 miliseconds
+Average Wait: 0.0792832 miliseconds
+Producer Throughput: 1.10863 milliseconds per product produced
+Consumer Throughput: 0.0011575 milliseconds per product consumed
+_______________________________
+
+2 8 4000 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3740.54 miliseconds
+Minimum Turnaround: 0.028 miliseconds
+Maximum Turnaround: 3.058 miliseconds
+Average Turnaround: 1.00924 miliseconds
+Minimum Wait: 0.01 miliseconds
+Maximum Wait: 0.68 miliseconds
+Average Wait: 0.0767443 miliseconds
+Producer Throughput: 1.11113 milliseconds per product produced
+Consumer Throughput: 0.00052175 milliseconds per product consumed
+_______________________________
+
+8 2 4000 10 0 3 
+_______________________________
+[METRICS]
+Total Time: 3661.14 miliseconds
+Minimum Turnaround: 2.205 miliseconds
+Maximum Turnaround: 16.915 miliseconds
+Average Turnaround: 11.1781 miliseconds
+Minimum Wait: 0.645 miliseconds
+Maximum Wait: 15.802 miliseconds
+Average Wait: 10.2652 miliseconds
+Producer Throughput: 1.12545 milliseconds per product produced
+Consumer Throughput: 1.12745 milliseconds per product consumed
+_______________________________
+
+8 2 4000 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3397.08 miliseconds
+Minimum Turnaround: 0.468 miliseconds
+Maximum Turnaround: 7.454 miliseconds
+Average Turnaround: 3.06815 miliseconds
+Minimum Wait: 0.256 miliseconds
+Maximum Wait: 5.965 miliseconds
+Average Wait: 2.22099 miliseconds
+Producer Throughput: 1.04768 milliseconds per product produced
+Consumer Throughput: 1.04829 milliseconds per product consumed
+_______________________________
+
+8 2 4000 0 0 3 7
+_______________________________
+[METRICS]
+Total Time: 3076.06 miliseconds
+Minimum Turnaround: 2.581 miliseconds
+Maximum Turnaround: 2574.33 miliseconds
+Average Turnaround: 1305.87 miliseconds
+Minimum Wait: 0.496 miliseconds
+Maximum Wait: 2572.4 miliseconds
+Average Wait: 1305.1 miliseconds
+Producer Throughput: 0.00126925 milliseconds per product produced
+Consumer Throughput: 0.859316 milliseconds per product consumed
+_______________________________
+
+3 3 100 5 1 100 26
+_______________________________
+[METRICS]
+Total Time: 119.864 miliseconds
+Minimum Turnaround: 1.313 miliseconds
+Maximum Turnaround: 18.336 miliseconds
+Average Turnaround: 9.44173 miliseconds
+Minimum Wait: 1.182 miliseconds
+Maximum Wait: 107.995 miliseconds
+Average Wait: 38.393 miliseconds
+Producer Throughput: 1.89592 milliseconds per product produced
+Consumer Throughput: 1.90031 milliseconds per product consumed
+_______________________________
+
+3 3 100 5 1 500 26
+_______________________________
+[METRICS]
+Total Time: 93.871 miliseconds
+Minimum Turnaround: 0.134 miliseconds
+Maximum Turnaround: 11.947 miliseconds
+Average Turnaround: 5.50269 miliseconds
+Minimum Wait: 0.111 miliseconds
+Maximum Wait: 24.429 miliseconds
+Average Wait: 6.78767 miliseconds
+Producer Throughput: 1.13181 milliseconds per product produced
+Consumer Throughput: 1.15505 milliseconds per product consumed
+_______________________________
+
+3 3 100 2 1 100 26
+_______________________________
+[METRICS]
+Total Time: 95.703 miliseconds
+Minimum Turnaround: 0.093 miliseconds
+Maximum Turnaround: 6.124 miliseconds
+Average Turnaround: 2.93879 miliseconds
+Minimum Wait: 0.035 miliseconds
+Maximum Wait: 36.33 miliseconds
+Average Wait: 11.3696 miliseconds
+Producer Throughput: 1.50733 milliseconds per product produced
+Consumer Throughput: 1.49491 milliseconds per product consumed
+_______________________________
+
+3 3 100 2 1 500 26
+_______________________________
+[METRICS]
+Total Time: 88.336 miliseconds
+Minimum Turnaround: 0.176 miliseconds
+Maximum Turnaround: 4.752 miliseconds
+Average Turnaround: 2.084 miliseconds
+Minimum Wait: 0.118 miliseconds
+Maximum Wait: 8.98 miliseconds
+Average Wait: 2.11325 miliseconds
+Producer Throughput: 0.04137 milliseconds per product produced
+Consumer Throughput: 1.0781 milliseconds per product consumed
+_______________________________
+
+3 3 100 0 1 100 
+_______________________________
+[METRICS]
+Total Time: 83.343 miliseconds
+Minimum Turnaround: 0.389 miliseconds
+Maximum Turnaround: 99.301 miliseconds
+Average Turnaround: 60.2817 miliseconds
+Minimum Wait: 0.356 miliseconds
+Maximum Wait: 743.77 miliseconds
+Average Wait: 263.535 miliseconds
+Producer Throughput: 0.17817 milliseconds per product produced
+Consumer Throughput: 1.0689 milliseconds per product consumed
+_______________________________
+
+3 3 100 0 1 500 267
+_______________________________
+[METRICS]
+Total Time: 96.158 miliseconds
+Minimum Turnaround: 0.151 miliseconds
+Maximum Turnaround: 59.737 miliseconds
+Average Turnaround: 24.654 miliseconds
+Minimum Wait: 0.092 miliseconds
+Maximum Wait: 125.721 miliseconds
+Average Wait: 33.4038 miliseconds
+Producer Throughput: 0.02217 milliseconds per product produced
+Consumer Throughput: 1.10641 milliseconds per product consumed
+_______________________________
+
+2 6 100 5 1 100 2
+_______________________________
+[METRICS]
+Total Time: 111.125 miliseconds
+Minimum Turnaround: 0.923 miliseconds
+Maximum Turnaround: 16.595 miliseconds
+Average Turnaround: 7.83572 miliseconds
+Minimum Wait: 0.801 miliseconds
+Maximum Wait: 98.247 miliseconds
+Average Wait: 31.4805 miliseconds
+Producer Throughput: 0.0421 milliseconds per product produced
+Consumer Throughput: 1.62239 milliseconds per product consumed
+_______________________________
+
+2 6 100 5 1 500 26
+_______________________________
+[METRICS]
+Total Time: 105.288 miliseconds
+Minimum Turnaround: 0.101 miliseconds
+Maximum Turnaround: 3.155 miliseconds
+Average Turnaround: 1.21514 miliseconds
+Minimum Wait: 0.034 miliseconds
+Maximum Wait: 4.188 miliseconds
+Average Wait: 0.82524 miliseconds
+Producer Throughput: 1.27541 milliseconds per product produced
+Consumer Throughput: 0.04335 milliseconds per product consumed
+_______________________________
+
+2 6 100 2 1 100 26
+_______________________________
+[METRICS]
+Total Time: 114.863 miliseconds
+Minimum Turnaround: 0.15 miliseconds
+Maximum Turnaround: 6.676 miliseconds
+Average Turnaround: 3.17064 miliseconds
+Minimum Wait: 0.06 miliseconds
+Maximum Wait: 36.574 miliseconds
+Average Wait: 11.8966 miliseconds
+Producer Throughput: 1.68032 milliseconds per product produced
+Consumer Throughput: 1.66311 milliseconds per product consumed
+_______________________________
+
+2 6 100 2 1 500 26
+_______________________________
+[METRICS]
+Total Time: 92.06 miliseconds
+Minimum Turnaround: 0.083 miliseconds
+Maximum Turnaround: 2.273 miliseconds
+Average Turnaround: 1.02475 miliseconds
+Minimum Wait: 0.015 miliseconds
+Maximum Wait: 3.555 miliseconds
+Average Wait: 0.67704 miliseconds
+Producer Throughput: 1.1034 milliseconds per product produced
+Consumer Throughput: 0.04536 milliseconds per product consumed
+_______________________________
+
+2 6 100 0 1 100 26
+_______________________________
+[METRICS]
+Total Time: 99.016 miliseconds
+Minimum Turnaround: 0.98 miliseconds
+Maximum Turnaround: 87.142 miliseconds
+Average Turnaround: 41.4521 miliseconds
+Minimum Wait: 0.895 miliseconds
+Maximum Wait: 590.887 miliseconds
+Average Wait: 176.478 miliseconds
+Producer Throughput: 0.03995 milliseconds per product produced
+Consumer Throughput: 1.2559 milliseconds per product consumed
+_______________________________
+
+2 6 100 0 1 500 26
+_______________________________
+[METRICS]
+Total Time: 93.443 miliseconds
+Minimum Turnaround: 0.039 miliseconds
+Maximum Turnaround: 2.582 miliseconds
+Average Turnaround: 1.05884 miliseconds
+Minimum Wait: 0.01 miliseconds
+Maximum Wait: 3.704 miliseconds
+Average Wait: 0.7126 miliseconds
+Producer Throughput: 1.12228 milliseconds per product produced
+Consumer Throughput: 0.05333 milliseconds per product consumed
+_______________________________
+
+6 2 100 5 1 100 2
+_______________________________
+[METRICS]
+Total Time: 106.964 miliseconds
+Minimum Turnaround: 0.993 miliseconds
+Maximum Turnaround: 18.699 miliseconds
+Average Turnaround: 8.70925 miliseconds
+Minimum Wait: 0.932 miliseconds
+Maximum Wait: 112.973 miliseconds
+Average Wait: 35.1403 miliseconds
+Producer Throughput: 0.04605 milliseconds per product produced
+Consumer Throughput: 1.75392 milliseconds per product consumed
+_______________________________
+
+6 2 100 5 1 500 26
+_______________________________
+[METRICS]
+Total Time: 75.065 miliseconds
+Minimum Turnaround: 0.905 miliseconds
+Maximum Turnaround: 8.69 miliseconds
+Average Turnaround: 4.49514 miliseconds
+Minimum Wait: 0.326 miliseconds
+Maximum Wait: 16.212 miliseconds
+Average Wait: 5.60169 miliseconds
+Producer Throughput: 0.89441 milliseconds per product produced
+Consumer Throughput: 0.91924 milliseconds per product consumed
+_______________________________
+
+6 2 100 2 1 100 26
+_______________________________
+[METRICS]
+Total Time: 91.853 miliseconds
+Minimum Turnaround: 0.19 miliseconds
+Maximum Turnaround: 7.31 miliseconds
+Average Turnaround: 2.95368 miliseconds
+Minimum Wait: 0.139 miliseconds
+Maximum Wait: 37.492 miliseconds
+Average Wait: 11.5676 miliseconds
+Producer Throughput: 0.01543 milliseconds per product produced
+Consumer Throughput: 1.50502 milliseconds per product consumed
+_______________________________
+
+4 4 100 3 0 3 7
+_______________________________
+[METRICS]
+Total Time: 94.96 miliseconds
+Minimum Turnaround: 0.277 miliseconds
+Maximum Turnaround: 4.748 miliseconds
+Average Turnaround: 2.30222 miliseconds
+Minimum Wait: 0.17 miliseconds
+Maximum Wait: 8.895 miliseconds
+Average Wait: 2.39114 miliseconds
+Producer Throughput: 1.18627 milliseconds per product produced
+Consumer Throughput: 1.18566 milliseconds per product consumed
+_______________________________
+
+6 2 100 2 1 500 26
+_______________________________
+[METRICS]
+Total Time: 85.064 miliseconds
+Minimum Turnaround: 1.114 miliseconds
+Maximum Turnaround: 109.632 miliseconds
+Average Turnaround: 68.6201 miliseconds
+Minimum Wait: 1.05 miliseconds
+Maximum Wait: 784.282 miliseconds
+Average Wait: 297.9 miliseconds
+Producer Throughput: 0.03815 milliseconds per product produced
+Consumer Throughput: 1.10596 milliseconds per product consumed
+_______________________________
+
+6 2 100 0 1 500 26
+_______________________________
+[METRICS]
+Total Time: 85.171 miliseconds
+Minimum Turnaround: 0.71 miliseconds
+Maximum Turnaround: 82.758 miliseconds
+Average Turnaround: 51.7515 miliseconds
+Minimum Wait: 0.168 miliseconds
+Maximum Wait: 203.21 miliseconds
+Average Wait: 70.2614 miliseconds
+Producer Throughput: 0.02725 milliseconds per product produced
+Consumer Throughput: 0.9566 milliseconds per product consumed
+_______________________________
+
+6 6 500 0 1 500 26
+_______________________________
+[METRICS]
+Total Time: 377.665 miliseconds
+Minimum Turnaround: 0.451 miliseconds
+Maximum Turnaround: 248.171 miliseconds
+Average Turnaround: 89.7268 miliseconds
+Minimum Wait: 0.065 miliseconds
+Maximum Wait: 459.141 miliseconds
+Average Wait: 121.916 miliseconds
+Producer Throughput: 0.003356 milliseconds per product produced
+Consumer Throughput: 0.858832 milliseconds per product consumed
+_______________________________
+
