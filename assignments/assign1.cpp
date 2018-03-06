@@ -13,7 +13,7 @@ bool DEBUG = false, METRIC = true;
 // • QMAX: Size of the queue to store products for both producer and consumer threads (0 for
 // unlimited queue size)
 // • QNTM: Value of quantum used for round-robin scheduling.
-int PMAX, QMAX, QNTM;
+int PMAX=0, QMAX=0, QNTM=0;
 
 // Global Variables
 // • NPROD: Total Number of Products produced
@@ -170,20 +170,20 @@ void *producer(void *id){
 
 void *consumer(void *id){
     int int_id = *(int*)id; // The unique consumer thread ID
-    if(DEBUG) std::cout << "!Consumer Thread ID: " << int_id << std::endl;
+    // if(DEBUG) std::cout << "!Consumer Thread ID: " << int_id << std::endl;
 
     // CDONE is true when PMAX has been reached
     while(!CDONE){
-        if(DEBUG) std::cout << "$CONSUMER LOCK REQUEST ID: " << int_id << std::endl;
+        // if(DEBUG) std::cout << "$CONSUMER LOCK REQUEST ID: " << int_id << std::endl;
         pthread_mutex_lock(&queue_mutex);
 
         // Checks if there are any products or continue if all possible products have been consumed 
         while(QUEUE.size() < 1 && NCONS < PMAX) {
-            if(DEBUG) std::cout << "...Consumer Thread Waiting ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "...Consumer Thread Waiting ID: " << int_id << std::endl;
             pthread_cond_wait(&condc, &queue_mutex);
-            if(DEBUG) std::cout << "...Consumer Thread Finished Waiting ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "...Consumer Thread Finished Waiting ID: " << int_id << std::endl;
         }
-        if(DEBUG) std::cout << "$CONSUMER LOCK RECEVIED ID: " << int_id << std::endl; 
+        // if(DEBUG) std::cout << "$CONSUMER LOCK RECEVIED ID: " << int_id << std::endl; 
 
         // If all possible products have been consumed, exit.
         if(NCONS == PMAX){
@@ -191,7 +191,7 @@ void *consumer(void *id){
             CDONE = true;
             pthread_cond_broadcast(&condc); // Lets all waiting consumers continue
             pthread_mutex_unlock(&queue_mutex);
-            if(DEBUG) std::cout << "$CONSUMER UNLOCKED ID: " << int_id << std::endl;
+            // if(DEBUG) std::cout << "$CONSUMER UNLOCKED ID: " << int_id << std::endl;
             break;
         // If no products have been consumed, start a clock for throughput
 	    }else if(NCONS == 0)
@@ -222,14 +222,14 @@ void *consumer(void *id){
             std::cout << "Consumer " << int_id << " has consumed product " << prod.get_id() << std::endl;
         }
 
-        if(DEBUG) std::cout << "*Number of Products Consumed: " << NCONS << std::endl;
-        if(DEBUG) std::cout << "vQueue Size (consumed): " << QUEUE.size() << std::endl;
+        // if(DEBUG) std::cout << "*Number of Products Consumed: " << NCONS << std::endl;
+        // if(DEBUG) std::cout << "vQueue Size (consumed): " << QUEUE.size() << std::endl;
         pthread_cond_signal(&condp);    // Lets a single waiting producer continue
         pthread_mutex_unlock(&queue_mutex); 
-        if(DEBUG) std::cout << "$CONSUMER UNLOCKED ID: " << int_id << std::endl;
+        // if(DEBUG) std::cout << "$CONSUMER UNLOCKED ID: " << int_id << std::endl;
         usleep(100000); //Sleep 100 milliseconds (100000 microseconds)
     }
-    if(DEBUG) std::cout << "!Consumer ID: " << int_id << " Exited" << std::endl;
+    // if(DEBUG) std::cout << "!Consumer ID: " << int_id << " Exited" << std::endl;
     pthread_exit(NULL);
 }
 
