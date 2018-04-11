@@ -59,7 +59,33 @@ class PageTable{
                 return true;
             return false;
         }
+        
+        // you can split this up into three different functions if you want
+        void pageSwap(int localPage, string algo, string pagingMethod){
+            if (!checkMain(localPage)){
+                if (algo == "FIFO"){
 
+                }
+                else if (algo == "LRU"){
+
+                }
+                else{
+
+                }
+
+                if (pagingMethod == "+"){
+                    pagingMethod = "-";
+                    pageSwap(localPage + 1, algo, pagingMethod);
+                    return;
+                }
+                return;
+            }
+            else {
+                pagingMethod = "-";
+                pageSwap(localPage + 1, algo, pagingMethod);
+                return;
+            }
+        }
 };
 
 int main(int argc, char* argv[]){
@@ -143,9 +169,12 @@ int main(int argc, char* argv[]){
             }
             if (!DEBUG) cout << memory_ref << endl;
             if (!programs[program_id].checkMain(memory_ref)){
-            
+                programs[program_id].pageSwap(memory_ref, algo, pre_paging);
+                page_swaps++;
+                if(!DEBUG) cout << "Page Swaps: " << page_swaps << endl;
             }
         }
     }
+
     return 0;
 }
