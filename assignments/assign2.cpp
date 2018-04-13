@@ -108,8 +108,6 @@ class PageTable{
         }
 
         bool checkMain(int localPage, string algo){
-            cout << "checkMain ID: " << id << endl;
-            cout << "checkMain localPage: " << localPage << endl;
             if(algo == "LRU") pages[localPage][2] = RCOUNT++;
             if(pages[localPage][1]==1) return true;
             else return false;
@@ -130,7 +128,6 @@ class PageTable{
             // Unload the old page and load the new
             pages[oldestPage][1] = 0;
             pages[localPage][1] = 1;
-            cout << "VCOUNT: " << VCOUNT << endl;
             pages[localPage][2] = VCOUNT++;
         }
 
@@ -249,8 +246,6 @@ int main(int argc, char* argv[]){
                     memory_ref = float(stoi(in))/float(SOP);
                 }
             }
-            cout << "Line: " << line << endl;
-            cout << "ID: "<< programs[program_id].getID() << endl;
             if (!programs[program_id].checkMain(memory_ref, algo)){
                 // If the given memory doesn't have space to pre-page don't.
                 if(memory_ref + 1 >= programs[program_id].getSize()) programs[program_id].pageSwap(memory_ref, algo, "-");
