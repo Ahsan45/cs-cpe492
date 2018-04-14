@@ -150,12 +150,12 @@ class PageTable{
                 if(pages[hand][1] == 1){
                     if(pages[hand][2] == 1){
                         pages[hand][2] == 0;
-                        hand = (hand+1) % PROGSIZE;
                     }else{
                         pages[hand][1] = 0;
                         pages[localPage][2] = 1;
                         pages[localPage][1] = 1;
                     }
+                    hand = (hand+1) % PROGSIZE;
                 }
             }
         }
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]){
                 else programs[program_id].pageSwap(memory_ref, algo, pre_paging);
                 ++PSCOUNT;
                 if(DEBUG) programs[program_id].print();
-                if(DEBUG) cout << "Page Swaps: " << PCOUNT << endl;
+                if(DEBUG) cout << "Page Swaps: " << PSCOUNT << endl;
             }
         }
     }
@@ -263,6 +263,9 @@ int main(int argc, char* argv[]){
             programs[i].print();
         }
     }
+
+    //Output data to file
+    cout << "Total Page Faults: " << PSCOUNT << endl;
 
     return 0;
 }
