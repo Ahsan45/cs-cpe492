@@ -51,7 +51,7 @@ class PageTable{
                 if (DEBUG) std::cout << pages[i][0] << " " << pages[i][1] << " " << pages[i][2] << std::endl;
             }
             for (int i = 0; i < memory.size(); i++){
-                if (!DEBUG) cout << memory[i] << " ";
+                if (DEBUG) cout << memory[i] << " ";
             }
             cout << endl;
         }
@@ -228,7 +228,7 @@ int main(int argc, char* argv[]){
                     total_pages = ceil(float(stoi(in))/float(sop));
                 }
             }
-            if (!DEBUG) std::cout << program_id << " " << total_pages << std::endl;
+            if (DEBUG) std::cout << program_id << " " << total_pages << std::endl;
             programs.push_back(PageTable(program_id, total_pages));
             
         }
@@ -241,7 +241,7 @@ int main(int argc, char* argv[]){
     // As a check, sop = 2 -> page per program = 25, sop = 4 -> page per program = 12, sop = 8 -> page per program = 6, etc.
     
     int mem_space = (MEMSIZE/sop)/programs.size(); 
-    if (!DEBUG) cout << "Pages per program: " << mem_space << endl;
+    if (DEBUG) cout << "Pages per program: " << mem_space << endl;
 
     for (int i = 0; i < programs.size(); i++){
         programs[i].setup(mem_space);
@@ -281,7 +281,7 @@ int main(int argc, char* argv[]){
             }
         }
     }
-    if (!DEBUG) cout << "RCOUNT: " << RCOUNT << endl;
+    if (DEBUG) cout << "RCOUNT: " << RCOUNT << endl;
     cout << "Total Page Faults: " << PSCOUNT << endl;
 
     
