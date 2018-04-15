@@ -119,10 +119,12 @@ class PageTable{
             // Find the oldest loaded page
             for (int i = 0; i < pages.size(); i++){
                 // Set the inital oldestPage at the first valid bit it finds.
-                if(oldestPage < 0){
-                    if(pages[i][1] == 1) oldestPage = i;
-                }else{
-                    if(pages[i][2] < pages[oldestPage][2] && pages[i][1] == 1) oldestPage = i;
+                if(pages[i][i] == 1){
+                    if(oldestPage < 0){
+                        oldestPage = i;
+                    }else{
+                        if(pages[i][2] < pages[oldestPage][2]) oldestPage = i;
+                    }
                 }
             }
             // Unload the old page and load the new
@@ -136,10 +138,12 @@ class PageTable{
             int oldestPage = -1;
             // Find the oldest loaded page
             for (int i = 1; i < pages.size(); i++){
-                if(oldestPage < 0){
-                    if(pages[i][1] == 1) oldestPage = i;
-                }else{
-                    if(pages[i][2] < pages[oldestPage][2] && pages[i][1] == 1) oldestPage = i;
+                if(pages[i][1] == 1){
+                    if(oldestPage < 0){
+                        oldestPage = i;
+                    }else{
+                        if(pages[i][2] < pages[oldestPage][2]) oldestPage = i;
+                    }
                 }
             }
             // Unload the old page and load the new
