@@ -19,10 +19,10 @@ int SOP;            // Size of pages
 bool DEBUG = false;
 
 // Global Variables
-unsigned long RCOUNT = 0;  // Increments when any virtual memory is referenced
-unsigned long VCOUNT = 1; // Increments when valid bit is set to 1
-unsigned long PSCOUNT = 0; // Increments when pages are swapped
-unsigned long PCOUNT = 0;        // Increments when a virtual page is created
+unsigned long RCOUNT = 0;   // Increments when any virtual memory is referenced
+unsigned long VCOUNT = 1;   // Increments when valid bit is set to 1
+unsigned long PSCOUNT = 0;  // Increments when pages are swapped
+unsigned long PCOUNT = 0;   // Increments when a virtual page is created
 
 class PhysicalMemory{
     private:
@@ -77,7 +77,7 @@ class PageTable{
 
         // Use to check the page tables at a certain point
         void print(){
-            // std::cout << "Process ID: " << id << std::endl;
+            std::cout << "Process ID: " << id << std::endl;
             for (int i = 0; i < pages.size(); i++){
                 std::cout << pages[i][0] << " " << pages[i][1] << " " << pages[i][2] << std::endl;
             }
@@ -108,7 +108,7 @@ class PageTable{
 
         bool checkMain(int localPage, string algo){
             if(algo == "LRU") pages[localPage][2] = RCOUNT++;
-            if(pages[localPage][1]==1) return true;
+            if(localPage < pages.size() && pages[localPage][1]==1) return true;
             else return false;
         }
 
@@ -118,7 +118,7 @@ class PageTable{
             // Find the oldest loaded page
             for (int i = 0; i < pages.size(); i++){
                 // Set the inital oldestPage at the first valid bit it finds.
-                if(pages[i][i] == 1){
+                if(pages[i][1] == 1){
                     if(oldestPage < 0){
                         oldestPage = i;
                     }else{
@@ -155,6 +155,7 @@ class PageTable{
         void clock(int localPage){
             bool replaced = false;
             while(!replaced){
+                if(!DEBUG) cout << "Hand: " << hand << endl;
                 if(pages[hand][1] == 1){
                     if(pages[hand][2] == 1){
                         pages[hand][2] == 0;
@@ -163,9 +164,10 @@ class PageTable{
                         pages[localPage][2] = 1;
                         pages[localPage][1] = 1;
                         MAINMEM.swapIn(pages[localPage][0], id, MAINMEM.findPhysical(pages[hand][0])-(PROGSIZE*id));
+                        replaced = true;
                     }
-                    hand = (hand+1) % PROGSIZE;
                 }
+                hand = (hand+1) % pages.size();
             }
         }
         
@@ -175,11 +177,8 @@ class PageTable{
                 if (algo == "FIFO") FIFO(localPage);
                 else if (algo == "LRU") LRU(localPage);
                 else if (algo == "Clock") clock(localPage);
-
-                if (pagingMethod == "+"){
-                    pageSwap(localPage + 1, algo, "-");
-                }
-            } else pageSwap(localPage + 1, algo, pagingMethod);
+                if (pagingMethod == "+") pageSwap((localPage + 1) % pages.size(), algo, "-");
+            } else pageSwap((localPage + 1) % pages.size(), algo, pagingMethod);
         }
 };
 
@@ -242,7 +241,7 @@ int main(int argc, char* argv[]){
     if (i2.is_open()){ 
         int chk;
         while (getline(i2, in)){
-            ++line;
+            if(!DEBUG) cout << "Line: " << line++ << endl;
             std::stringstream ss(in);
             chk = 0;
             while (getline(ss, in, ' ')){
@@ -257,24 +256,26 @@ int main(int argc, char* argv[]){
             }
             if (!programs[program_id].checkMain(memory_ref, algo)){
                 // If the given memory doesn't have space to pre-page don't.
-                if(memory_ref + 1 >= programs[program_id].getSize()) programs[program_id].pageSwap(memory_ref, algo, "-");
+                if(memory_ref >= programs[program_id].getSize()-1) programs[program_id].pageSwap(memory_ref, algo, "-");
                 else programs[program_id].pageSwap(memory_ref, algo, pre_paging);
                 ++PSCOUNT;
                 if(DEBUG) programs[program_id].print();
-                if(DEBUG) cout << "Page Swaps: " << PSCOUNT << endl;
+                if(!DEBUG) cout << "Page Swaps: " << PSCOUNT << endl;
             }
         }
     }
 
     // Copy and paste this to print page table to check values at a certain point (It'll be really long if size of page is small)
-    if (!DEBUG) {
+    if (DEBUG) {
         for (int i = 0; i < programs.size(); i++){
             programs[i].print();
         }
     }
 
     //Output data to file
-    cout << "Total Page Faults: " << PSCOUNT << endl;
+    // cout << "Total Page Faults: " << PSCOUNT << endl;
+    char str[2];
+    fgets(str, 2, stdin);
 
     return 0;
 }
