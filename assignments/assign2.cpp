@@ -133,11 +133,14 @@ class PageTable{
 
         void LRU(int localPage){
             if(DEBUG) cout << "localPage: " << localPage << endl;
-            int oldestPage = 0;
+            int oldestPage = -1;
             // Find the oldest loaded page
             for (int i = 1; i < pages.size(); i++){
-                // Set the inital oldestPage at the first valid bit it finds.
-                if(pages[i][2] < pages[oldestPage][2]) oldestPage = i;
+                if(oldestPage < 0){
+                    if(pages[i][1] == 1) oldestPage = i;
+                }else{
+                    if(pages[i][2] < pages[oldestPage][2] && pages[i][1] == 1) oldestPage = i;
+                }
             }
             // Unload the old page and load the new
             pages[oldestPage][1] = 0;
