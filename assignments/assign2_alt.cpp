@@ -24,6 +24,7 @@ int MEMSIZE = 512;          // The maximum size of memory
 // 1st array index is the page number (unique among all pages in all tables). We can use  the vector index to find the local page number for each program's page table
 // 2nd array index is the valid bit, 0 if not in memory, 1 if in memory
 // 3rd array index is the last recently accessed count in FIFO and LRU, it'll be the reference bit in the clock algorithm
+// Memory vector represent pages in memory and will be used to easily swap out pages
 class PageTable{
     private:
         int id;
@@ -56,6 +57,7 @@ class PageTable{
             cout << endl;
         }
 
+        // Load initial pages into memory
         void setup(int space){
             if (pages.size() < space){
                 space = pages.size();
@@ -66,6 +68,7 @@ class PageTable{
             }
         }
 
+        // Convert unique id to local page
         int getLocalPage(int uniquePage){
             for (int i = 0; i < pages.size(); i++){
                 if (pages[i][0] == uniquePage){
@@ -74,6 +77,7 @@ class PageTable{
             }
         }
 
+        // Check if page is in main memory and update 3rd bit if using LRU
         bool checkMain(int localPage, string algo){
             if (algo == "LRU"){
                 pages[localPage][2] = RCOUNT;
@@ -88,6 +92,7 @@ class PageTable{
             }
         }
 
+        // First-in-first-out algo
         void FIFO(int localPage){
             /*if(DEBUG) cout << "localPage: " << localPage << endl;
             pages[getLocalPage(memory[hand])][1] = 0;
@@ -106,6 +111,7 @@ class PageTable{
            memory.push_back(pages[localPage][0]);
         }
 
+        // Least recently used algo
         void LRU(int localPage){
             if(DEBUG) cout << "localPage: " << localPage << endl;
             int oldestPage = getLocalPage(memory[0]);
@@ -123,6 +129,7 @@ class PageTable{
             memory[mainLoc] = pages[localPage][0];
         }
 
+        // Clock algo
         void clock(int localPage){
             if(DEBUG) cout << "localPage: " << localPage << endl;
             bool replaced = false;
@@ -146,7 +153,6 @@ class PageTable{
             }
         }
         
-        // you can split this up into three different functions if you want
         void pageSwap(int localPage, string algo, string pagingMethod, int originalPage){
             if (!checkMain(localPage, algo)){
                 if (algo == "FIFO"){
@@ -159,6 +165,7 @@ class PageTable{
                     clock(localPage);
                 }
 
+                // If pre-paging is on, just call the function with an incremented local page and keep going if the following pages are already in memory
                 if (pagingMethod == "+"){
                     pagingMethod = "-";
                     if (localPage == pages.size() - 1){
@@ -253,7 +260,8 @@ int main(int argc, char* argv[]){
             programs[i].print();
         }
     }
-
+    
+    // Begin reading ptrace and performing swaps as necessary
     int memory_ref;
     ifstream i2(ptrace + ".txt");
     if (i2.is_open()){
@@ -270,8 +278,10 @@ int main(int argc, char* argv[]){
                     memory_ref = float(stoi(in))/float(sop);
                 }
             }
+            // Increment the reference count for each line
             ++RCOUNT;
             if (DEBUG) cout << program_id << " " << memory_ref << endl;
+            //Swap if page isn't in main memory and increment page swap counter
             if (!programs[program_id].checkMain(memory_ref, algo)){
                 programs[program_id].pageSwap(memory_ref, algo, pre_paging, memory_ref);
                 ++PSCOUNT;
