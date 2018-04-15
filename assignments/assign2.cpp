@@ -31,7 +31,6 @@ class PhysicalMemory{
     public:
         void initPhysicalMemory(){
             int size = float(MEMSIZE)/float(SOP);
-            cout << size << endl;
             pageFrames.resize(size, 0);
         }
 
@@ -131,6 +130,7 @@ class PageTable{
             pages[oldestPage][1] = 0;
             pages[localPage][1] = 1;
             pages[localPage][2] = VCOUNT++;
+            MAINMEM.swapIn(pages[localPage][0], id, MAINMEM.findPhysical(pages[oldestPage][0])-(PROGSIZE*id));
         }
 
         void LRU(int localPage){
@@ -149,6 +149,7 @@ class PageTable{
             // Unload the old page and load the new
             pages[oldestPage][1] = 0;
             pages[localPage][1] = 1;
+            MAINMEM.swapIn(pages[localPage][0], id, MAINMEM.findPhysical(pages[oldestPage][0])-(PROGSIZE*id));
         }
 
         void clock(int localPage){
@@ -161,6 +162,7 @@ class PageTable{
                         pages[hand][1] = 0;
                         pages[localPage][2] = 1;
                         pages[localPage][1] = 1;
+                        MAINMEM.swapIn(pages[localPage][0], id, MAINMEM.findPhysical(pages[hand][0])-(PROGSIZE*id));
                     }
                     hand = (hand+1) % PROGSIZE;
                 }
