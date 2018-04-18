@@ -113,7 +113,7 @@ class Ldisk{
             nodes = new_nodes;
         }
 
-        // Fill free blocks
+        // Fill free blocks then returns the vector of all the filled blocks
         std::vector<int> fillFree(int size){
             std::vector<int> blocks;
             std::list<LdiskNode>::iterator it;
