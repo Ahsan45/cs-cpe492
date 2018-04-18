@@ -5,9 +5,11 @@
 #include <vector>
 #include <fstream>
 #include <map>
-
+#include <sstream>
 // Global Variables
 int BLOCKSIZE;  // Size of the block in the system
+
+bool DEBUG = true;     // If on, prints debug statements
 
 class Ldisk{
     private:
@@ -245,6 +247,7 @@ class FileTree{
             node->nodes[name] = new_dir;
         }
 
+        // Adds a file
         void addFile(std::string full_path, int size, std::string time){
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
@@ -278,13 +281,13 @@ int main(int argc, char* argv[]){
     int bindex = 0; // Index of flag -b
     for(int i = 1; i < argc; i++){
         // I check if index is 0 first for efficiency
-        if(findex != 0 && strcmp(argv[i], "-f") == 0){
+        if(strcmp(argv[i], "-f") == 0){
             findex = i;
-        }else if(dindex != 0 && strcmp(argv[i], "-d") == 0){
+        }else if(strcmp(argv[i], "-d") == 0){
             dindex = i;
-        }else if(sindex != 0 && strcmp(argv[i], "-s") == 0){
+        }else if(strcmp(argv[i], "-s") == 0){
             sindex = i;
-        }else if(bindex != 0 && strcmp(argv[i], "-b") == 0){
+        }else if(strcmp(argv[i], "-b") == 0){
             bindex = i;
         }
     }
@@ -300,5 +303,41 @@ int main(int argc, char* argv[]){
     FileTree tree;
 
     std::ifstream files(file_list);
+    std::string item;
+    std::string path;
+    std::string time;
+    int size;
+    if(files.is_open()){
+        int column;
+        while(getline(files, item)){
+            std::stringstream ss(item);
+            column = -1;
+            path = "";
+            time = "";
+            while(getline(ss, item, ' ')){
+                if(item.length() != 0){
+                    ++column;
+                    if (DEBUG) std::cout << "Column: " << column << std::endl;
+                    if (DEBUG) std::cout << item << std::endl;
+                    if (DEBUG) std::cout << item.length() << std::endl;
+                    if (DEBUG){
+                        char ch[2];
+                        fgets(ch, 2, stdin);
+                    }
+                    if (column == 6){
+                        std::stringstream integer(item);
+                        integer >> size;
+                        // if (DEBUG) std::cout << "Column 6: " << size << std::endl;
+                    }else if(column == 7 && column == 8 && column == 9){
+                        time += item + " ";
+                    }else if(column >= 10){
+                        path += item + " ";
+                    }
+                }
+            }
+            tree.addFile(path, size, time);
+        }
+    }
+    files.close();
     return 0;
 }
