@@ -144,7 +144,6 @@ class Lfile{
             int block_count = filesize / BLOCKSIZE;
             std::vector<int> blocks = LDISK.fillFree(block_count);
             std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
-            LDISK.recombine();                                                                  // Recombines after split
         }
 };
 
