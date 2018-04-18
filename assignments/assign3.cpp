@@ -167,10 +167,17 @@ class FileTree{
             root.directory = true;
         }
 
+        // Finds the directory to add new files/folders into
+        TreeNode* findDirectory(std::string path){
+
+        }
+
         // Not yet finished
         void addDirectory(std::string full_path){
-            int loc = 0;
-            std::string item;
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc);
+            std::string path = full_path.substr(0, loc);
+            findDirectory(path);
         }
 
         // Gets the height of the tree. Used in breadth first traversal.
