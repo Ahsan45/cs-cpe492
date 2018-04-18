@@ -4,6 +4,7 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
+#include <map>
 
 // Global Variables
 int BLOCKSIZE;  // Size of the block in the system
@@ -140,7 +141,7 @@ class Lfile{
     private:
         std::list<int> addresses;
     public:
-        void initLfile(std::string filename, int filesize) {
+        void initLfile(int filesize) {
             int block_count = filesize / BLOCKSIZE;
             std::vector<int> blocks = LDISK.fillFree(block_count);
             std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
@@ -151,11 +152,12 @@ class FileTree{
     private:
         struct TreeNode{
             std::string name;
-            std::string path;
-            bool directory;                 // Marks if the file is a directory
-            std::vector<TreeNode> nodes;
+            bool is_dir;
 
-            // For fIles only
+            // Only for directories
+            std::map<std::string, TreeNode> nodes; 
+
+            // Only for fIles
             int size;
             std::string time;
             Lfile lfile;
@@ -164,20 +166,7 @@ class FileTree{
     public:
         FileTree(){
             root.name = "./";
-            root.directory = true;
-        }
-
-        // Finds the directory to add new files/folders into
-        TreeNode* findDirectory(std::string path){
-
-        }
-
-        // Not yet finished
-        void addDirectory(std::string full_path){
-            int loc = full_path.rfind("/");
-            std::string name = full_path.substr(loc);
-            std::string path = full_path.substr(0, loc);
-            findDirectory(path);
+            root.is_dir = true;
         }
 
         // Gets the height of the tree. Used in breadth first traversal.
@@ -187,9 +176,9 @@ class FileTree{
         int getHeightHelper(TreeNode tree, int height){
             if(tree.nodes.size() > 0){
                 int max = height+1;
-                for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
-                    if(it->directory){
-                        int dir_height = getHeightHelper(*it, height+1);
+                for(std::map<std::string, TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
+                    if(it->second.is_dir){
+                        int dir_height = getHeightHelper(it->second, height+1);
                         if(dir_height > max){
                             max = dir_height;
                         }
@@ -208,15 +197,67 @@ class FileTree{
         }
         void printHelper(TreeNode tree, int depth){
             if(depth != 0){
-                for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
-                    if(it->directory){
-                        printHelper(*it, depth-1);
+                for(std::map<std::string, TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
+                    if(it->second.is_dir){
+                        printHelper(it->second, depth-1);
                     }
                 }
             }else std::cout << tree.name << " ";
         }
 
+        // Finds the directory to add new files/folders into
+        TreeNode* getDirectory(std::string path){
+            bool found = false;
+            int loc;
+            TreeNode *cur_node = &root;
+            std::string name;
+            path.erase(0,2);    //Since we're already at root
+            do{
+                // If it hasn't reached the end yet
+                if((loc = path.find("/")) != std::string::npos){
+                    name = path.substr(0, loc);
+                    path.erase(0, loc+1);           // +1 to delete the slash
 
+                    // Add a directory if missing or get the directory
+                    if(cur_node->nodes.find(name) != cur_node->nodes.end()) cur_node = &cur_node->nodes[name];
+                    else{
+                        TreeNode new_dir;
+                        new_dir.name = name;
+                        new_dir.is_dir = true;
+                        cur_node->nodes[name] = new_dir;
+                        cur_node = &cur_node->nodes[name];
+                    }
+                }
+            }while(!found);
+
+            return cur_node;
+        }
+
+        // Adds a directory
+        void addDirectory(std::string full_path){
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc+1);
+            std::string path = full_path.substr(0, loc+1);
+            TreeNode* node = getDirectory(path);           // Creates directory if missing.
+            TreeNode new_dir;
+            new_dir.name = name;
+            new_dir.is_dir = true;
+            node->nodes[name] = new_dir;
+        }
+
+        void addFile(std::string full_path, int size, std::string time){
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc+1);
+            std::string path = full_path.substr(0, loc+1);
+            TreeNode* node = getDirectory(path);           // Creates directory if missing. 
+            TreeNode new_file;
+            new_file.name = name;
+            new_file.is_dir = false;
+            new_file.size = size;
+            new_file.time = time;
+            new_file.lfile.initLfile(size);
+            node->nodes[name] = new_file;
+        }
 };
 
 int main(int argc, char* argv[]){
