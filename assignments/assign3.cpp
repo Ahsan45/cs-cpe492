@@ -16,21 +16,37 @@ class Ldisk{
                 bool free;          // Determines if the node is free or not.
                 std::vector<int> block_set;
 
-                LdiskNode(bool free, int first, int size) : free(free){
+                // Generates vector based on first element and size
+                std::vector<int> genVector(int first, int size){
+                    std::vector<int> result;
                     block_set.resize(size);
                     for(int i = 0; i < size; i++){
-                        block_set[i] = first + i;
+                        result[i] = first + i;
                     }
+                    return result;
                 }
 
+                LdiskNode(bool free, int first, int size) : free(free){
+                    block_set = genVector(first, size);
+                }
+
+                // Prints out LdiskNode in the format specified by PDF
                 void print(){
                     if(free) std::cout << "Free: ";
                     else std::cout << "In use: ";
                     std::cout << block_set.front() << "-" << block_set.back() << std::endl;
                 }
 
+                // Helpful in combining two nodes
                 void append(std::vector<int> append_set){
                     block_set.insert(block_set.end(), append_set.begin(), append_set.end());
+                }
+
+                // Cuts out size elements and returns it as a class
+                LdiskNode split(int size){
+                    int first_block = block_set[0];
+                    block_set = genVector(block_set[size], block_set.size()-size);
+                    return LdiskNode(this->free, first_block, size);
                 }
         };
 
@@ -50,20 +66,24 @@ class Ldisk{
             nodes.push_front(LdiskNode(true, 0, block_count));
         }
 
-        // FInds free node and returns its block_set
-        std::vector<int> fillFree(){
+        // Finds free node and returns its block_set, then sets the free node to occupied
+        std::list<LdiskNode>::iterator findFree(){
             std::list<LdiskNode>::iterator it = nodes.begin();
             while(!(it->free)){
                 ++it;
             }
-            it->free = false;
-            return it->block_set;
+            return it;
+        }
+        // Splits the node at the iterator by the size of the first half, then returns iterator to the first half.
+        std::list<LdiskNode>::iterator split(std::list<LdiskNode>::iterator it, int size){
+            LdiskNode first_half = it->split(size);     // Gets the the first half
+            return nodes.insert(it, first_half);
         }
 
         // Recombine contiguous free/occupied nodes
         void recombine(){
-            std::list<LdiskNode> new_nodes;
-            int mode=-1;   // 1 is Free mode, 0 is Occupied mode, -1 is Unset
+            std::list<LdiskNode> new_nodes; // Represents new nodes list
+            int mode=-1;                    // 1 is Free mode, 0 is Occupied mode, -1 is Unset
 
             for(std::list<LdiskNode>::iterator it=nodes.begin(); it != nodes.end(); ++it){
                 // What to do if the previous one was free
@@ -93,6 +113,25 @@ class Ldisk{
             nodes = new_nodes;
         }
 
+        // Fill free blocks
+        std::vector<int> fillFree(int size){
+            std::vector<int> blocks;
+            std::list<LdiskNode>::iterator it;
+            while(size > 0){
+                it = findFree();
+                if(size >= it->block_set.size()){
+                    size -= it->block_set.size();
+                }else{
+                    size = 0;
+                    it = split(it, size);   // Splits then returns the first block of the split
+                }
+                it->free = false;
+                std::copy(it->block_set.begin(), it->block_set.end(), std::back_inserter(blocks));  // Appends vector elements to blocks
+            }
+            recombine();
+            return blocks;
+        }
+
 };
 
 Ldisk LDISK;
@@ -101,14 +140,11 @@ class Lfile{
     private:
         std::list<int> addresses;
     public:
-        Lfile(std::string filename, int filesize) {
+        void initLfile(std::string filename, int filesize) {
             int block_count = filesize / BLOCKSIZE;
-            while(block_count > 0){
-                std::vector<int> block_set = LDISK.fillFree();
-                block_count -= block_set.size();
-                std::copy(block_set.begin(), block_set.end(), std::back_inserter(addresses));   // Add the given vectors to the back of Addresses
-            }
-            LDISK.recombine();
+            std::vector<int> blocks = LDISK.fillFree(block_count);
+            std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
+            LDISK.recombine();                                                                  // Recombines after split
         }
 };
 
@@ -116,12 +152,14 @@ class FileTree{
     private:
         struct TreeNode{
             std::string name;
-            bool directory;
+            std::string path;
+            bool directory;                 // Marks if the file is a directory
             std::vector<TreeNode> nodes;
 
             // For fIles only
             int size;
             std::string time;
+            Lfile lfile;
         };
         TreeNode root;
     public:
@@ -129,12 +167,20 @@ class FileTree{
             root.name = "./";
             root.directory = true;
         }
+
+        // Not yet finished
+        void addDirectory(std::string full_path){
+            int loc = 0;
+            std::string item;
+        }
+
+        // Gets the height of the tree. Used in breadth first traversal.
         int getHeight(){
             getHeightHelper(root, 0);
         }
         int getHeightHelper(TreeNode tree, int height){
             if(tree.nodes.size() > 0){
-                int max = height;
+                int max = height+1;
                 for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
                     if(it->directory){
                         int dir_height = getHeightHelper(*it, height+1);
@@ -144,27 +190,27 @@ class FileTree{
                     }
                 }
                 return max;
-            }else return height+1; 
+            }else return height;
         }
 
-        //Not done yet
+        // Prints directory structure breadth first
         void print(){
-            printHelper(root);
-        }
-        void printHelper(TreeNode tree){
-            for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
-                if(it->directory){
-                    std::cout << it->name << " ";
-                }
+            for(int i = 0; i < getHeight(); i++){
+                printHelper(root, i);
                 std::cout << std::endl;
             }
-
-            for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
-                if(it->directory){
-                    std::cout << it->name << " ";
-                }
-            }
         }
+        void printHelper(TreeNode tree, int depth){
+            if(depth != 0){
+                for(std::vector<TreeNode>::iterator it=tree.nodes.begin(); it != tree.nodes.end(); ++it){
+                    if(it->directory){
+                        printHelper(*it, depth-1);
+                    }
+                }
+            }else std::cout << tree.name << " ";
+        }
+
+
 };
 
 int main(int argc, char* argv[]){
@@ -202,6 +248,9 @@ int main(int argc, char* argv[]){
     int disk_size = atoi(argv[sindex+1]);
     BLOCKSIZE = atoi(argv[bindex+1]);
     int block_count = disk_size/BLOCKSIZE;
+
+    // Directory Tree
+    FileTree tree;
 
     std::ifstream files(file_list);
     return 0;
