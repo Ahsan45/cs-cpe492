@@ -6,10 +6,12 @@
 #include <fstream>
 #include <map>
 #include <sstream>
+#include <math.h>
 // Global Variables
-int BLOCKSIZE;  // Size of the block in the system
+int BLOCKSIZE;          // Size of the block in the system
+int BLOCKCOUNT;         //
 
-bool DEBUG = true;     // If on, prints debug statements
+bool DEBUG = true;      // If on, prints debug statements
 
 class Ldisk{
     private:
@@ -163,7 +165,7 @@ class Lfile{
         std::list<int> addresses;
     public:
         void initLfile(int filesize) {
-            int block_count = filesize / BLOCKSIZE;
+            int block_count = ceil( float(filesize) / float(BLOCKSIZE) );
             // if (DEBUG) std::cout << "Before fillFree" << std::endl;
             std::vector<int> blocks = LDISK.fillFree(block_count);
             // if (DEBUG) std::cout << "After fillFree" << std::endl;
@@ -222,6 +224,7 @@ class FileTree{
         void printDir(){
             int levels = getLevel();
             for(int i = 0; i < levels; i++){
+                std::cout << "[Dir Level: " << i << "]" << std::endl;
                 printDirHelper(root, i);
                 std::cout << std::endl;
             }
@@ -242,6 +245,7 @@ class FileTree{
             // if (DEBUG) std::cout << "printFiles - tree level: " << levels << std::endl;
             for(int i = 0; i < levels; i++){
                 // if (DEBUG) std::cout << "printFIles: Printing Files!" << std::endl;
+                std::cout << "[File Level: " << i << "]" << std::endl;
                 printFilesHelper(root, i);
             }
         }
@@ -294,6 +298,11 @@ class FileTree{
                 }
             }
             return cur_node;
+        }
+
+        void updateRoot(std::string path){
+            TreeNode* new_root = getDirectory(path);
+            root = *new_root;
         }
 
         // Adds a directory
@@ -379,11 +388,28 @@ int main(int argc, char* argv[]){
     // Directory Tree
     FileTree tree;
 
-    std::ifstream files(file_list);
     std::string item;
     std::string path;
     std::string time;
     int size;
+    std::ifstream dirs(dir_list);
+    if(dirs.is_open()){
+        int column;
+        while(getline(dirs, path)){
+            // If filesize is 0 don't bother
+            // if (DEBUG) std::cout << "Adding Directory: " << path << std::endl;
+            tree.addDirectory(path);
+            // if (DEBUG){
+            //     char ch[2];
+            //     fgets(ch, 2, stdin);
+            // }
+        }
+    }
+    dirs.close();
+    if (DEBUG) tree.printDir();
+
+    int allfilesize = 0;
+    std::ifstream files(file_list);
     if(files.is_open()){
         int column;
         while(getline(files, item)){
@@ -410,35 +436,21 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
+            if (DEBUG) allfilesize += size;
             // if (DEBUG) std::cout << "Time: " << time << std::endl;
             // if (DEBUG) std::cout << "Path: " << path << std::endl;
             // if (DEBUG) std::cout << "Size: " << size << std::endl;
             // If filesize is 0 don't bother
             if(size != 0) tree.addFile(path, size, time);
-            LDISK.diskFootprint();
-            if (DEBUG){
-                char ch[2];
-                fgets(ch, 2, stdin);
-            }
+            // LDISK.diskFootprint();
+            // if (DEBUG){
+            //     char ch[2];
+            //     fgets(ch, 2, stdin);
+            // }
         }
     }
+    if (DEBUG) std::cout << "File size in total: " << allfilesize << std::endl;
     files.close();
     if (DEBUG) tree.printFiles();
-
-    std::ifstream dirs(dir_list);
-    if(dirs.is_open()){
-        int column;
-        while(getline(dirs, path)){
-            // If filesize is 0 don't bother
-            if (DEBUG) std::cout << "Adding Directory: " << path << std::endl;
-            if(size != 0) tree.addDirectory(path);
-            if (DEBUG) tree.printDir();
-            if (DEBUG){
-                char ch[2];
-                fgets(ch, 2, stdin);
-            }
-        }
-    }
-    dirs.close();
     return 0;
 }
