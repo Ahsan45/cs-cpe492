@@ -158,7 +158,7 @@ class Ldisk{
         }
 
         // Frees memory starting at block i up to size number of blocks
-        void free(vector<int> ){
+        void free(std::vector<int> free_blocks){
 
         }
 };
