@@ -126,17 +126,17 @@ class Ldisk{
             nodes = new_nodes;
         }
 
-        // Fill free blocks then returns the vector of all the filled blocks
-        std::vector<int> fillFree(int size){
+        // Allocate free blocks then returns the vector of all the filled blocks
+        std::vector<int> allocate(int size){
             std::vector<int> blocks;
             std::list<LdiskNode>::iterator it;
             int node_size;
-            // if (DEBUG) std::cout << "fillFree block size: " << size << std::endl;
+            // if (DEBUG) std::cout << "allocate block size: " << size << std::endl;
             while(size > 0){
-                // if (DEBUG) std::cout << "fillFree Looping!" << std::endl;
+                // if (DEBUG) std::cout << "allocate Looping!" << std::endl;
                 it = findFree();
                 node_size = it->block_set.size();
-                // if (DEBUG) std::cout << "fillFree: LDISK free size - " << it->block_set.size() << std::endl;
+                // if (DEBUG) std::cout << "allocate: LDISK free size - " << it->block_set.size() << std::endl;
                 if(node_size == 0){
                     std::cout << "NOT ENOUGH SPACE FOR ALL FILES." << std::endl;
                     exit(0); 
@@ -152,26 +152,29 @@ class Ldisk{
                 it->free = false;
                 std::copy(it->block_set.begin(), it->block_set.end(), std::back_inserter(blocks));  // Appends vector elements to blocks
             }
-            // if (DEBUG) std::cout << "fillFree: Out of Loop!" << std::endl;
+            // if (DEBUG) std::cout << "allocate: Out of Loop!" << std::endl;
             recombine();
             return blocks;
         }
 
+        // Frees memory starting at block i up to size number of blocks
+        void free(vector<int> ){
+
+        }
 };
 
 Ldisk LDISK;
 
 class Lfile{
-    private:
-        std::list<int> addresses;
     public:
+        std::list<int> addresses;
         void initLfile(int filesize) {
             if(filesize > 0){
                 int block_count = ceil( float(filesize) / float(BLOCKSIZE) );
-                // if (DEBUG) std::cout << "Before fillFree" << std::endl;
-                std::vector<int> blocks = LDISK.fillFree(block_count);
-                // if (DEBUG) std::cout << "After fillFree" << std::endl;
-                std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
+                // if (DEBUG) std::cout << "Before allocate" << std::endl;
+                std::vector<int> blocks = LDISK.allocate(block_count);
+                // if (DEBUG) std::cout << "After allocate" << std::endl;
+                std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses)); // Appends vector elements to addresses list
             }
         }
 
@@ -181,6 +184,19 @@ class Lfile{
                 std::cout << *it;
             }
             std::cout << std::endl;
+        }
+
+        void updateNumBlocks(int new_filesize){
+            int block_count = ceil( float(new_filesize) / float(BLOCKSIZE) );
+            int old_size = addresses.size();
+            if(block_count > old_size){
+                // if (DEBUG) std::cout << "Before allocate" << std::endl;
+                std::vector<int> blocks = LDISK.allocate(block_count - old_size);       // Get new blocks
+                // if (DEBUG) std::cout << "After allocate" << std::endl;
+                std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses)); // Appends vector elements to addresses list
+            }else if(block_count < old_size){
+
+            }
         }
 };
 
@@ -427,9 +443,54 @@ class FileTree{
             // if (DEBUG) std::cout << "del: path - " << path << std::endl;
             if(dir != NULL){
                 if (DEBUG) std::cout << "del - directory: " << dir->name << std::endl;
-                // if (DEBUG) std::cout << "del - element: " << dir->nodes[name].name << std::endl;
                 if(dir->nodes.find(name) == dir->nodes.end()) std::cout << "Directory or File does not exist." << std::endl;
                 else dir->nodes.erase(name);
+            }
+        }
+
+        void append(std::string full_path, int amt){
+            if (DEBUG) std::cout << "append - amt: " << amt << std::endl;
+            full_path = makePathValid(full_path);
+            full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc+1);             // After last slash
+            std::string path = full_path.substr(0, loc+1);          // Remove root characters
+            if (DEBUG) std::cout << "append - name: " << name << std::endl;
+            if (DEBUG) std::cout << "append - path: " << path << std::endl;
+            TreeNode* dir = getDirectory(path);
+            if(dir != NULL){
+                if (DEBUG) std::cout << "append - directory: " << dir->name << std::endl;
+                std::map<std::string, TreeNode>::iterator it = dir->nodes.find(name);
+                if (DEBUG) std::cout << "append - previous size: " << it->second.lfile.addresses.size() << std::endl;
+                if(it == dir->nodes.end()) std::cout << "File does not exist." << std::endl;
+                else {
+                    if (DEBUG) std::cout << "append - file/not: " << it->second.is_dir << std::endl;
+                    if(!it->second.is_dir) it->second.lfile.updateNumBlocks(it->second.size + amt);
+                    else std::cout << "This is a directory!" << std::endl;
+                }
+                if (DEBUG) std::cout << "append - after size: " << it->second.lfile.addresses.size() << std::endl;
+            }
+        }
+
+        void remove(std::string full_path, int amt){
+            full_path = makePathValid(full_path);
+            full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc+1);             // After last slash
+            std::string path = full_path.substr(0, loc+1);          // Remove root characters
+            TreeNode* dir = getDirectory(path);
+            if(dir != NULL){
+                if (DEBUG) std::cout << "remove - directory: " << dir->name << std::endl;
+                // if (DEBUG) std::cout << "del - element: " << it->second.name << std::endl;
+                std::map<std::string, TreeNode>::iterator it = dir->nodes.find(name);
+                if(it == dir->nodes.end()) std::cout << "File does not exist." << std::endl;
+                else{
+                    int num_blocks = dir->nodes[name].lfile.addresses.size();
+                    if(!it->second.is_dir){
+                        if(num_blocks - amt >= 0) it->second.lfile.updateNumBlocks(num_blocks + amt);
+                        else std::cout << "Given amount is too large for this file!" << std::endl;
+                    }else  std::cout << "This is a directory!" << std::endl;
+                }
             }
         }
 };
@@ -466,7 +527,7 @@ int main(int argc, char* argv[]){
     // Save all of our argument variables
     std::string file_list = argv[findex+1];
     std::string dir_list = argv[dindex+1];
-    int disk_size = atoi(argv[sindex+1]);   // For our current file_list, we need at least 37 MB
+    int disk_size = atoi(argv[sindex+1]);   // For our current file_list, we need at least 128 MB or 134217728
     BLOCKSIZE = atoi(argv[bindex+1]);
     int block_count = disk_size/BLOCKSIZE;
 
@@ -600,9 +661,21 @@ int main(int argc, char* argv[]){
             // if (DEBUG) std::cout << "new file path: " << new_dir << std::endl;
             tree.addFile(new_dir, 0, time);
         }else if(input.substr(0, 7) == "append "){
-
+            std::stringstream ss(input.substr(7));
+            std::getline(ss, token, ' ');
+            std::string path = token;
+            if (DEBUG) std::cout << "append - path: " << path << std::endl;
+            std::getline(ss, token, ' ');
+            int amount = atoi(token.c_str());
+            if (DEBUG) std::cout << "append - amount: " << amount << std::endl;
+            tree.append(path, amount);
         }else if(input.substr(0, 7) == "remove "){
-
+            std::stringstream ss(input.substr(7));
+            std::getline(ss, token, ' ');
+            std::string path = token;
+            std::getline(ss, token, ' ');
+            int amount = atoi(token.c_str());
+            tree.remove(path, amount);
         }else if(input.substr(0, 7) == "delete "){
             std::stringstream ss(input.substr(7));
             std::getline(ss, token, '\n');
