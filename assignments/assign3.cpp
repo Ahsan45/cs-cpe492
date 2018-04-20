@@ -5,6 +5,8 @@
 #include <vector>
 #include <fstream>
 #include <map>
+#include <chrono>
+#include <ctime>
 #include <sstream>
 #include <math.h>
 // Global Variables
@@ -164,11 +166,13 @@ class Lfile{
         std::list<int> addresses;
     public:
         void initLfile(int filesize) {
-            int block_count = ceil( float(filesize) / float(BLOCKSIZE) );
-            // if (DEBUG) std::cout << "Before fillFree" << std::endl;
-            std::vector<int> blocks = LDISK.fillFree(block_count);
-            // if (DEBUG) std::cout << "After fillFree" << std::endl;
-            std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
+            if(filesize > 0){
+                int block_count = ceil( float(filesize) / float(BLOCKSIZE) );
+                // if (DEBUG) std::cout << "Before fillFree" << std::endl;
+                std::vector<int> blocks = LDISK.fillFree(block_count);
+                // if (DEBUG) std::cout << "After fillFree" << std::endl;
+                std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses));  // Appends vector elements to addresses
+            }
         }
 
         void print(){
@@ -231,6 +235,7 @@ class FileTree{
         void ls(){
             for(std::map<std::string, TreeNode>::iterator it=cur_dir->nodes.begin(); it != cur_dir->nodes.end(); ++it){
                 if(it != cur_dir->nodes.begin()) std::cout << " ";
+                // if (DEBUG) std::cout << "[" << it->first << "] ";
                 std::cout << it->second.name;
             }
             std::cout << std::endl;
@@ -288,11 +293,13 @@ class FileTree{
         std::string escapeSpace(std::string original){
             int loc;
             // if (DEBUG) std::cout << "escapeSpace - before: " << original << std::endl;
-            while((loc = original.find(" ")) != std::string::npos){
-                original.replace(loc, 1, "\\%");    // I replaced it with a weird character to keep it from looping forever
-            }
-            while((loc = original.find("%")) != std::string::npos){
-                original.replace(loc, 1," ");
+            if((loc = original.find("\\ ")) == std::string::npos){
+                while((loc = original.find(" ")) != std::string::npos){
+                    original.replace(loc, 1, "\\$%$");    // I replaced it with a weird sequence not a space since space loops forever
+                }
+                while((loc = original.find("$%$")) != std::string::npos){
+                    original.replace(loc, 3," ");
+                }  
             }
             // std::cout << "escapeSpace - after: " << original << std::endl;
             return original;
@@ -326,6 +333,10 @@ class FileTree{
                 }
             }   
             // if (DEBUG) std::cout << "chdir - got directory!" << std::endl;
+            if(current != NULL && !(current->is_dir)) {
+                std::cout << "Not a directory: " << path << std::endl;
+                current = NULL;   
+            }
             return current;
         }
 
@@ -343,6 +354,7 @@ class FileTree{
             path = makePathValid(path);
             // if (DEBUG) std::cout << "chdir - made path valid: " << path << std::endl;
             TreeNode* dir = getDirectory(path);
+            // if (DEBUG) std::cout << "chdir - got directory! " << std::endl;
             // Only update on valid directories
             if(dir != NULL){
                 // if (DEBUG) std::cout << "chdir - Path wasn't NULL!" << std::endl;
@@ -359,25 +371,35 @@ class FileTree{
 
         // Adds a directory
         void addDirectory(std::string full_path){
-            full_path = escapeSpace(full_path);
+            // if (DEBUG) std::cout << "addDirectory - full_path before valid: " << full_path << std::endl;
+            full_path = makePathValid(full_path);
+            // if (DEBUG) std::cout << "addDirectory - full_path after valid: " << full_path << std::endl;
+            full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
-            std::string path = full_path.substr(0, loc+1);
-            TreeNode* node = getDirectory(path);
-            TreeNode new_dir;
-            new_dir.name = name;
-            new_dir.path = path;
-            new_dir.is_dir = true;
-            new_dir.parent = node;
-            node->nodes[name] = new_dir;
+            if(name != ""){               
+                std::string path = full_path.substr(0, loc+1);
+                // if (DEBUG) std::cout << "addDirectory - path: " << name << std::endl;
+                TreeNode* node = getDirectory(path);
+                // Set up new directory
+                TreeNode new_dir;
+                new_dir.name = name;
+                new_dir.path = path;
+                new_dir.is_dir = true;
+                new_dir.parent = node;
+                // Add new directory
+                node->nodes[name] = new_dir;
+            }
         }
 
         // Adds a file
         void addFile(std::string full_path, int size, std::string time){
+            full_path = makePathValid(full_path);
+            full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
             // if (DEBUG) std::cout << "addFile: name - " << name << std::endl;
-            std::string path = full_path.substr(0, loc+1);  // Remove root characters
+            std::string path = full_path.substr(0, loc+1);          // Remove root characters
             // if (DEBUG) std::cout << "Adding File" << std::endl;;
             TreeNode* dir = getDirectory(path);
             // if (DEBUG) std::cout << "Got Directory" << std::endl;;
@@ -392,6 +414,23 @@ class FileTree{
             new_file.lfile.initLfile(size);
             dir->nodes[name] = new_file;
             // if (DEBUG) std::cout << "addFile - Number of child nodes: " << dir->nodes.size() << std::endl;
+        }
+
+        void del(std::string full_path){
+            full_path = makePathValid(full_path);
+            full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
+            int loc = full_path.rfind("/");
+            std::string name = full_path.substr(loc+1);
+            // if (DEBUG) std::cout << "del: name - " << name << std::endl;
+            std::string path = full_path.substr(0, loc+1);          // Remove root characters
+            TreeNode* dir = getDirectory(path);
+            // if (DEBUG) std::cout << "del: path - " << path << std::endl;
+            if(dir != NULL){
+                if (DEBUG) std::cout << "del - directory: " << dir->name << std::endl;
+                // if (DEBUG) std::cout << "del - element: " << dir->nodes[name].name << std::endl;
+                if(dir->nodes.find(name) == dir->nodes.end()) std::cout << "Directory or File does not exist." << std::endl;
+                else dir->nodes.erase(name);
+            }
         }
 };
 
@@ -452,7 +491,7 @@ int main(int argc, char* argv[]){
     std::ifstream dirs(dir_list);
     if(dirs.is_open()){
         int column;
-        std::cout << "Loading Directories!" << std::endl;
+        // std::cout << "Loading Directories!" << std::endl;
         while(getline(dirs, path)){
             // if (DEBUG) std::cout << "Adding Directory: " << path << std::endl;
             // If filesize is 0 don't bother. substr.(1) gets rid of period
@@ -462,7 +501,7 @@ int main(int argc, char* argv[]){
             //     fgets(ch, 2, stdin);
             // }
         }
-        std::cout << "Finished Loading Directories!" << std::endl;
+        // std::cout << "Finished Loading Directories!" << std::endl;
     }
     dirs.close();
     // if (DEBUG) tree.printDir();
@@ -523,26 +562,51 @@ int main(int argc, char* argv[]){
             tree.moveUp();
         }else if(input.substr(0, 3) == "cd "){
             std::stringstream ss(input.substr(3));
-            std::getline(ss, token, ' ');
+            std::getline(ss, token, '\n');
             // if (DEBUG) std::cout << "cd - gotline" << std::endl;
             tree.chdir(token);
         }else if(input == "ls"){
             tree.ls();
         }else if(input.substr(0, 6) == "mkdir "){
             std::stringstream ss(input.substr(6));
-            std::getline(ss, token, ' ');
+            std::getline(ss, token, '\n');
             std::string new_dir = tree.getCurDir()->path+tree.getCurDir()->name+"/"+token;
-            if (DEBUG) std::cout << "Current Directory Path: " << tree.getCurDir()->path << std::endl;
-            if (DEBUG) std::cout << "Current Directory Name: " << tree.getCurDir()->name << std::endl;
-            if (DEBUG) std::cout << "Complete New Directory: " << new_dir << std::endl;
             tree.addDirectory(new_dir);
         }else if(input.substr(0, 7) == "create "){
+            std::stringstream ss(input.substr(7));
+            getline(ss, token, '\n');
+            std::string name = token;
+            std::string new_dir = tree.getCurDir()->path+tree.getCurDir()->name+"/"+token;  // New directory to be added
+            std::string time = "";
+
+            // Get current system time
+            std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+            time_t t_now = std::chrono::system_clock::to_time_t ( now );
+            std::string str_now = ctime(&t_now);
+            std::stringstream ss_time(str_now);
+
+            // Get the correct date format
+            int column = -1;
+            while(getline(ss_time, token, ' ')){
+                ++column;
+                // if (DEBUG) std::cout << "Column: " << column << std::endl;
+                if (column == 1 || column == 2 || column == 3){
+                    if(column != 1) time += " ";
+                    if(column == 3) time += token.substr(0,5);
+                    else time += token;
+                }
+            }
+            // if (DEBUG) std::cout << "new file time: " << time << std::endl;
+            // if (DEBUG) std::cout << "new file path: " << new_dir << std::endl;
+            tree.addFile(new_dir, 0, time);
         }else if(input.substr(0, 7) == "append "){
 
-        }else if(input == "remove"){
+        }else if(input.substr(0, 7) == "remove "){
 
-        }else if(input == "delete"){
-
+        }else if(input.substr(0, 7) == "delete "){
+            std::stringstream ss(input.substr(7));
+            std::getline(ss, token, '\n');
+            tree.del(token);
         }else if(input == "exit"){
             exit(0);
         }else if(input == "dir"){
