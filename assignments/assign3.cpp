@@ -149,7 +149,7 @@ class Ldisk{
         // Recombine contiguous free/occupied nodes
         void recombine(){
             std::list<LdiskNode> new_nodes; // Represents new nodes list
-            int mode=-1;                    // 1 is Free mode, 0 is Occupied mode, -1 is Unset
+            int mode=-1;                    // 1 when joining free blocks, 0 when joining occupied blocks, -1 is first iteration
 
             for(LDNiter it=nodes.begin(); it != nodes.end(); ++it){
                 // What to do if the previous one was free
@@ -181,26 +181,27 @@ class Ldisk{
 
         // Allocate free blocks then returns the vector of all the filled blocks
         std::vector<int> allocate(int size){
-            std::vector<int> blocks;
-            LDNiter it;
-            int node_size;
+            std::vector<int> blocks;    // The newly allocated blocks
             if(size > sumFree()){
                 std::cout << "NOT ENOUGH SPACE TO GROW OR ADD FILE." << std::endl;
                 return blocks;
             }else{
+                LDNiter it;
+                int node_size;
+                // Loops until all memory has been allocated to some free block.
                 while(size > 0){
-                    it = findFree();
-                    node_size = it->block_set.size();
+                    it = findFree();                    // Iterator to a free block
+                    node_size = it->block_set.size();   // The size of the free node
                     if(size >= node_size){
-                        size -= node_size;
+                        size -= node_size;              // Subtract the already allocated nodes
                     }else{
-                        it = split(it, size);   // Splits then returns the first block of the split
-                        size = 0;
+                        it = split(it, size);           // Splits then returns the first block of the split
+                        size = 0;                       // We're done
                     }
-                    it->free = false;
+                    it->free = false;                   // Mark each allocated node as false
                     std::copy(it->block_set.begin(), it->block_set.end(), std::back_inserter(blocks));  // Appends vector elements to blocks
                 }
-                recombine();
+                recombine();                            // Reorganize separated blocks
                 return blocks;
             }
         }
@@ -215,7 +216,7 @@ class Ldisk{
             int cur;
             while(it != free_blocks.end()){
                 cur = *(++it);
-                // If not contiguous, free the contiguous blocks
+                // If not contiguous, free the currently saved contiguous blocks
                 if(cur-prev != 1){
                     node = rangeSplit(first, prev-first+1);
                     node->free = true;
@@ -235,11 +236,12 @@ class Lfile{
         void initLfile(int filesize) {
             if(filesize > 0){
                 int block_count = ceil( float(filesize) / float(BLOCKSIZE) );
-                std::vector<int> blocks = LDISK.allocate(block_count);
+                std::vector<int> blocks = LDISK.allocate(block_count);                  // Allocates the given number of blocks
                 std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses)); // Appends vector elements to addresses list
             }
         }
 
+        // Prints all addresses in the format 1231232->12312233->123123123
         void print(){
             for(std::list<int>::iterator it=addresses.begin(); it != addresses.end(); ++it){
                 if(it != addresses.begin()) std::cout << "->";
@@ -248,6 +250,7 @@ class Lfile{
             std::cout << std::endl;
         }
 
+        // Updates the Lfile's list of addresses to correspond to the given filesize
         void updateNumBlocks(int new_filesize){
             int block_count = ceil( float(new_filesize) / float(BLOCKSIZE) );
             int old_size = addresses.size();
@@ -256,8 +259,8 @@ class Lfile{
                 std::copy(blocks.begin(), blocks.end(), std::back_inserter(addresses)); // Appends vector elements to addresses list
             }else if(block_count < old_size){
                 std::list<int>::iterator it = addresses.begin();
-                for(int i = 0; i < block_count; ++it, ++i);
-                std::vector<int> free_blocks(it, addresses.end());
+                for(int i = 0; i < block_count; ++it, ++i);                             // Go to the cut off point
+                std::vector<int> free_blocks(it, addresses.end());                      // Copy the cut off blocks
                 LDISK.free(free_blocks);
                 addresses.erase(it, addresses.end());
             }
@@ -275,7 +278,7 @@ class FileTree{
             // Only for directories
             std::map<std::string, TreeNode> nodes;
 
-            // Only for fIles
+            // Only for files
             int size;
             std::string time;
             Lfile lfile;
@@ -287,7 +290,7 @@ class FileTree{
         FileTree(){
             root.name = "/";
             root.is_dir = true;
-            root.parent = &root;
+            root.parent = &root;    // So that when you move to the parent, it goes back to itself
             cur_dir = &root;
         }
 
@@ -368,6 +371,7 @@ class FileTree{
             return size;
         }
 
+        // Gets Gets current time in the following format Apr 7 13:25
         std::string getCurTime(){
             std::string time = "";
             std::string token;
@@ -411,10 +415,10 @@ class FileTree{
             TreeNode *current;
             std::string name, path_traversal = path;
             if(path[0] != '/'){
-                current = cur_dir;
+                current = cur_dir;              // If the path doesn't start with a slash, work locally
             }else{
-                current = &root;
-                path_traversal.erase(0,1);    // Get rid of first '/'
+                current = &root;                // Otherwise work from root
+                path_traversal.erase(0,1);      // Get rid of first '/'
             }
             while((loc = path_traversal.find("/")) != std::string::npos){
                 name = path_traversal.substr(0, loc);
@@ -427,7 +431,7 @@ class FileTree{
                     current = NULL;
                     break;
                 }
-            }   
+            }
             if(current != NULL && !(current->is_dir)) {
                 std::cout << "Not a directory: " << path << std::endl;
                 current = NULL;   
@@ -438,7 +442,6 @@ class FileTree{
         // Makes the path valid (remove double slashes and add a slash at the end)
         std::string makePathValid(std::string path){
             int loc;
-            // Remove multiple slashes
             while((loc = path.find("//")) != std::string::npos) path.erase(loc, 1);
             if(path[path.size()-1] != '/') path += "/";
             path = escapeSpace(path);
@@ -450,11 +453,10 @@ class FileTree{
             path = makePathValid(path);
             TreeNode* dir = getDirectory(path);
             // Only update on valid directories
-            if(dir != NULL){
-                cur_dir = dir;
-            }
+            if(dir != NULL) cur_dir = dir;
         }
 
+        // Used to print out all files in the directory
         void ls(){
             for(treeMapIter it=cur_dir->nodes.begin(); it != cur_dir->nodes.end(); ++it){
                 if(it != cur_dir->nodes.begin()) std::cout << " ";
@@ -474,17 +476,17 @@ class FileTree{
             full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
-            if(name != ""){               
+            if(name != ""){                                         // If the given input had some characters besides slashes
                 std::string path = full_path.substr(0, loc+1);
-                TreeNode* node = getDirectory(path);
-                // Set up new directory
-                TreeNode new_dir;
-                new_dir.name = name;
-                new_dir.path = path;
-                new_dir.is_dir = true;
-                new_dir.parent = node;
-                // Add new directory
-                node->nodes[name] = new_dir;
+                TreeNode* parent = getDirectory(path);                // Get the parent
+                if(parent->nodes.find(name) == parent->nodes.end()){    // Check if folder already exists
+                    TreeNode new_dir;
+                    new_dir.name = name;
+                    new_dir.path = path;
+                    new_dir.is_dir = true;
+                    new_dir.parent = parent;
+                    parent->nodes[name] = new_dir;
+                }else std::cout << "Folder already exists." << std::endl;
             }
         }
 
@@ -494,19 +496,21 @@ class FileTree{
             full_path = full_path.substr(0, full_path.size()-1);    // Remove last slash
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
-            std::string path = full_path.substr(0, loc+1);          // Remove root characters
-            TreeNode* dir = getDirectory(path);
-            if(dir->nodes.find(name) == dir->nodes.end()){
-                TreeNode new_file;
-                new_file.name = name;
-                new_file.path = path;
-                new_file.is_dir = false;
-                new_file.parent = dir;
-                new_file.size = size;
-                new_file.time = time;
-                new_file.lfile.initLfile(size);
-                dir->nodes[name] = new_file;  
-            }else std::cout << "File already exists." << std::endl;
+            if(name != ""){                                         // If the given input had some characters besides slashes
+                std::string path = full_path.substr(0, loc+1);      // Remove root characters
+                TreeNode* dir = getDirectory(path);                 // Get the parent
+                if(dir->nodes.find(name) == dir->nodes.end()){      // Check if file already exists
+                    TreeNode new_file;
+                    new_file.name = name;
+                    new_file.path = path;
+                    new_file.is_dir = false;
+                    new_file.parent = dir;
+                    new_file.size = size;
+                    new_file.time = time;
+                    new_file.lfile.initLfile(size);
+                    dir->nodes[name] = new_file;  
+                }else std::cout << "File already exists." << std::endl;
+            }
         }
 
         // Appends the given number of bytes (amt) from the given file
@@ -538,10 +542,10 @@ class FileTree{
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);             // After last slash
             std::string path = full_path.substr(0, loc+1);          // Remove root characters
-            TreeNode* dir = getDirectory(path);
-            if(dir != NULL){
-                treeMapIter it = dir->nodes.find(name);
-                if(it == dir->nodes.end()) std::cout << "File does not exist." << std::endl;
+            TreeNode* parent = getDirectory(path);
+            if(parent != NULL){
+                treeMapIter it = parent->nodes.find(name);
+                if(it == parent->nodes.end()) std::cout << "File does not exist." << std::endl;
                 else{
                     if(!it->second.is_dir){
                         it->second.size -= amt;
@@ -561,19 +565,19 @@ class FileTree{
             int loc = full_path.rfind("/");
             std::string name = full_path.substr(loc+1);
             std::string path = full_path.substr(0, loc+1);          // Remove root characters
-            TreeNode* dir = getDirectory(path);
-            if(dir != NULL){
-                treeMapIter it = dir->nodes.find(name);
-                if(it == dir->nodes.end()) std::cout << "Directory or File does not exist." << std::endl;
+            TreeNode* parent = getDirectory(path);
+            if(parent != NULL){
+                treeMapIter it = parent->nodes.find(name);
+                if(it == parent->nodes.end()) std::cout << "Directory or File does not exist." << std::endl;
                 else {
-                    if(!it->second.is_dir) {
+                    if(!it->second.is_dir) {                    // File delete
                         remove(full_path, it->second.size);
-                        dir->nodes.erase(name);
-                    }else{
+                        parent->nodes.erase(name);
+                        parent->time = getCurTime();
+                    }else{                                      // Directory delete
                         if(it->second.nodes.size() > 0) std::cout << "Directory is not empty." << std::endl;
                         else {
-                            dir->nodes.erase(name);
-                            dir->time = getCurTime();
+                            parent->nodes.erase(name);
                         }
                     }
                 }
@@ -602,7 +606,6 @@ int main(int argc, char* argv[]){
     int sindex = 0; // Index of flag -s
     int bindex = 0; // Index of flag -b
     for(int i = 1; i < argc; i++){
-        // I check if index is 0 first for efficiency
         if(strcmp(argv[i], "-f") == 0){
             findex = i;
         }else if(strcmp(argv[i], "-d") == 0){
@@ -617,7 +620,7 @@ int main(int argc, char* argv[]){
     // Save all of our argument variables
     std::string file_list = argv[findex+1];
     std::string dir_list = argv[dindex+1];
-    int disk_size = atoi(argv[sindex+1]);   // For our current file_list, we need at least 128 MB or 134217728
+    int disk_size = atoi(argv[sindex+1]);
     BLOCKSIZE = atoi(argv[bindex+1]);
     int block_count = disk_size/BLOCKSIZE;
 
@@ -626,13 +629,13 @@ int main(int argc, char* argv[]){
     // Directory Tree
     FileTree tree;
 
+    // Set up directories
     std::string item;
     std::string path;
     std::string time;
     int size;
     std::ifstream dirs(dir_list);
     if(dirs.is_open()){
-        int column;
         while(getline(dirs, path)){
             // If filesize is 0 don't bother. substr.(1) gets rid of period
             tree.addDirectory(path.substr(1));
@@ -640,10 +643,12 @@ int main(int argc, char* argv[]){
     }
     dirs.close();
 
+
+    // Insert files
     std::ifstream files(file_list);
     if(files.is_open()){
         std::cout << "Loading Files! Hold on, should take a minute." << std::endl;
-        int column;
+        int column; // Keeps track of which column we're currently observing 
         while(getline(files, item)){
             std::stringstream ss(item);
             column = -1;
@@ -664,13 +669,14 @@ int main(int argc, char* argv[]){
                     }
                 }
             }
-            // If filesize is 0 don't bother. substr(1) gets rid of the period.
+            // If filesize is 0 don't bother. substr(1) gets rid of the period in front of path name.
             if(size != 0) tree.addFile(path.substr(1), size, time);
         }
         std::cout << "Finished Loading Files!" << std::endl;
     }
     files.close();
 
+    // Where commands are taken in
     std::string input;
     std::string token;
     std::string args[2];
