@@ -724,7 +724,7 @@ int main(int argc, char* argv[]){
             exit(0);
         }else if(input == "dir"){
             tree.printDir();
-        }else if(input == "pfiles"){
+        }else if(input == "prfiles"){
             tree.printFiles();
         }else if(input == "prdisk"){
             LDISK.diskFootprint();
