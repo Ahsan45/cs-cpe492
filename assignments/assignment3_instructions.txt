@@ -1,0 +1,10 @@
+The files_list size can be covered by 2^27 bytes (128 MB). This is equal to 134217728 bytes so the flag -s has to be at least 134217728.
+
+The a command that we used to test:
+./assign3 -f file_list.txt -d dir_list.txt -s 134217728 -b 64
+
+It takes a while for the files to load into the tree so please give it time.
+
+/CS492/assign1/cs-cpe492/.git/logs/refs/remotes/origin/HEAD
+is the last item on the list. I used this to test file append/remove/delete
+since you can see it at the end of the pfiles command.
