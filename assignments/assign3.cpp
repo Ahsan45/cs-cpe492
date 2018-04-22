@@ -12,7 +12,7 @@
 // Global Variables
 int BLOCKSIZE;          // Size of the block in the system
 
-bool DEBUG = true;      // If on, prints debug statements
+bool DEBUG = false;      // If on, prints debug statements
 
 class Ldisk{
     private:
